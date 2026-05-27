@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Project Report - Book Bank Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Font & Custom Style -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #333333;
+            background-color: #f4f6f9;
+            line-height: 1.6;
+        }
+        .report-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 50px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        .cover-page {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 50px;
+            margin-bottom: 50px;
+        }
+        h1 {
+            color: #1d3557;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        h2 {
+            color: #1d3557;
+            font-weight: 700;
+            border-bottom: 2px solid #457b9d;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #457b9d;
+            font-weight: 600;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .meta-box {
+            background-color: #f8faee;
+            border-left: 5px solid #1d3557;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 30px 0;
+        }
+        .table-custom {
+            border: 1px solid #dee2e6;
+        }
+        .table-custom th {
+            background-color: #1d3557;
+            color: white;
+        }
+        @media print {
+            body {
+                background-color: white;
+            }
+            .report-container {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="report-container">
+            <!-- ================= COVER PAGE ================= -->
+            <div class="cover-page">
+                <div class="text-primary mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-mortarboard-fill" viewBox="0 0 16 16">
+                      <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.14 3.416a.5.5 0 0 0 0 .908l1.72.823c.024.115.035.23.035.344 0 .47-.109.88-.285 1.196-.172.31-.43.548-.745.67a.5.5 0 0 0-.315.604l.5 2a.5.5 0 0 0 .602.377L3.14 10.74c.03.204.043.402.043.582 0 1.49-.178 2.583-.585 3.193a.5.5 0 0 0 .516.748c.742-.031 1.646-.232 2.382-.793C6.223 13.912 6.5 12.9 6.5 11.5c0-.18-.013-.378-.043-.582l1.656.452a.5.5 0 0 0 .602-.377l.5-2a.5.5 0 0 0-.315-.604c-.315-.122-.573-.36-.745-.67C7.882 8.224 7.773 7.815 7.773 7.34c0-.115.011-.23.035-.344l1.12-.536 1.54 1.026a.5.5 0 0 0 .554-.838L8.21 2.047z"/>
+                      <path d="M11 5.471V8.5a3.5 3.5 0 0 1-7 0V5.471L8 7l3-1.529z"/>
+                    </svg>
+                </div>
+                <h1 class="display-4 fw-extrabold mb-3">PROJECT REPORT</h1>
+                <h2 class="text-uppercase text-secondary border-0 mb-4" style="font-size: 1.8rem;">Book Bank Management System</h2>
+                <p class="lead text-muted max-w-600">A Smart Syllabus Lending and Automated Inventory Circulation Exchange Portal featuring an AI Recommendation Engine.</p>
+                
+                <div class="meta-box text-start mt-5">
+                    <h5><strong>Course/Curriculum:</strong> Bachelor of Technology (Computer Science & Engineering)</h5>
+                    <p class="mb-1"><strong>Document Version:</strong> 1.0.0 (IEEE Standard Compliant)</p>
+                    <p class="mb-1"><strong>Developed For:</strong> College Library Administration & Students</p>
+                    <p class="mb-0"><strong>Status:</strong> Final Deliverable Report</p>
+                </div>
+                
+                <p class="text-muted mt-5"><small>Use the browser print command (Ctrl+P) to export this report as a PDF file.</small></p>
+            </div>
+
+            <!-- ================= TABLE OF CONTENTS ================= -->
+            <div class="page-break">
+                <h2>Table of Contents</h2>
+                <ol class="fs-5 mt-4">
+                    <li><a href="#sec-problem">Problem Statement</a></li>
+                    <li><a href="#sec-srs">Software Requirements Specification (SRS)</a></li>
+                    <li><a href="#sec-diagrams">System Architecture & UML Diagrams</a></li>
+                    <li><a href="#sec-testing">Testing Suite (Black & White Box Test Cases)</a></li>
+                    <li><a href="#sec-database">Production Database Schema</a></li>
+                </ol>
+            </div>
+
+            <!-- ================= PROBLEM STATEMENT ================= -->
+            <div class="page-break" id="sec-problem">
+                <h2>1. Problem Statement</h2>
+                <p>In college institutions, standard textbooks representing syllabus frameworks are extremely expensive, costing students significant funds each semester. To equalize access to learning materials, colleges establish a <strong>Book Bank</strong> sub-facility. Here, students borrow textbook sets for the semester and return them post-exams.</p>
+                
+                <h3>Legacy System Inefficiencies:</h3>
+                <ul>
+                    <li><strong>Manual Overhead:</strong> Paper ledger entries lead to sluggish search operations, book tracking delays, and long queues.</li>
+                    <li><strong>Lack of Transparency:</strong> Students are unaware of stock availability or outstanding fines until they physically check with library staff.</li>
+                    <li><strong>Human Error:</strong> Manual calculations of overdue dates frequently lead to clerical errors and disputes over fine balances.</li>
+                    <li><strong>No Personalization:</strong> Students must browse through bookshelves without digital guidance regarding which textbooks match their registered engineering branches.</li>
+                </ul>
+            </div>
+
+            <!-- ================= SRS DOCUMENT ================= -->
+            <div class="page-break" id="sec-srs">
+                <h2>2. Software Requirements Specification (SRS)</h2>
+                <p>This SRS complies with the <strong>IEEE 830 standard</strong> parameters to define the operational functions of the Book Bank Management System.</p>
+                
+                <h3>2.1 Scope & Purpose</h3>
+                <p>The Book Bank Management System (BBMS) provides a responsive digital gateway for college student exchanges. It automates catalog searching, stock-level tracking, checkout approvals, return processing, and automated fine accounting, using client-side algorithms to deliver tailored book recommendation paths.</p>
+
+                <h3>2.2 Functional Requirements (FRs)</h3>
+                <ul>
+                    <li><strong>FR-1: Authentication:</strong> Dual logins separating Student and Admin roles securely. New students can register using their IDs and branches.</li>
+                    <li><strong>FR-2: Dynamic Catalog Search:</strong> Real-time filtering of textbooks by Title, Author, ISBN, or Department/Branch.</li>
+                    <li><strong>FR-3: Reservation Requests:</strong> Students submit reservation requests directly from their dashboards, decrementing stock automatically upon Admin approval.</li>
+                    <li><strong>FR-4: Active Fine Engine:</strong> Automatically calculates overdue fees ($1.00 per day) based on a 14-day return policy. Allows simulated online clearance.</li>
+                    <li><strong>FR-5: AI recommendation Engine:</strong> Maps curriculum syllabus requirements using content-based logic to prioritize branch textbooks first, augmented by peer demand frequencies.</li>
+                </ul>
+
+                <h3>2.3 Non-Functional Requirements (NFRs)</h3>
+                <ul>
+                    <li><strong>NFR-1: Reliability:</strong> Integrates synchronized localStorage systems to preserve user states across reloads.</li>
+                    <li><strong>NFR-2: Usability:</strong> Responsive and lightweight layout leveraging modern Bootstrap 5 components.</li>
+                    <li><strong>NFR-3: Security:</strong> Dual dashboard segregation restricting direct unauthorized page traversal.</li>
+                </ul>
+            </div>
+
+            <!-- ================= SYSTEM DIAGRAMS ================= -->
+            <div class="page-break" id="sec-diagrams">
+                <h2>3. System Architecture & UML Diagrams</h2>
+                
+                <h3>3.1 Entity Relationship Diagram (ERD)</h3>
+                <p>Defines the database entity structures and primary/foreign key connections:</p>
+                <div class="bg-light p-4 rounded-3 border mb-4">
+                    <ul>
+                        <li><strong>Student Entity:</strong> <code>student_id (PK)</code>, <code>name</code>, <code>email</code>, <code>password</code>, <code>department</code>, <code>balance_due</code>.</li>
+                        <li><strong>Book Entity:</strong> <code>isbn (PK)</code>, <code>title</code>, <code>author</code>, <code>department</code>, <code>total_quantity</code>, <code>available_quantity</code>, <code>cover_url</code>.</li>
+                        <li><strong>Circulation Entity:</strong> <code>record_id (PK)</code>, <code>student_id (FK)</code>, <code>isbn (FK)</code>, <code>issue_date</code>, <code>due_date</code>, <code>return_date</code>, <code>fine_applied</code>, <code>status</code>.</li>
+                    </ul>
+                    <p class="mb-0 text-muted"><em>Relationship:</em> Students can check out multiple books over time (1-to-Many), and books can appear in multiple circulation records (1-to-Many).</p>
+                </div>
+
+                <h3>3.2 Data Flow Diagram (DFD - Level 1)</h3>
+                <p>Illustrates information flows through system processes:</p>
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Process Code</th>
+                                <th>Process Name</th>
+                                <th>Source/Inputs</th>
+                                <th>Destination/Outputs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>1.0</code></td>
+                                <td>Authentication Manager</td>
+                                <td>User Credentials</td>
+                                <td>Session Token & Dashboard Redirection</td>
+                            </tr>
+                            <tr>
+                                <td><code>2.0</code></td>
+                                <td>Inventory Search Engine</td>
+                                <td>Search keywords, stock entries</td>
+                                <td>Filtered textbook catalog grid</td>
+                            </tr>
+                            <tr>
+                                <td><code>3.0</code></td>
+                                <td>Circulation & Fine Core</td>
+                                <td>Issue approvals, book returns</td>
+                                <td>Stock adjustments, student fine updates</td>
+                            </tr>
+                            <tr>
+                                <td><code>4.0</code></td>
+                                <td>AI Recommendations</td>
+                                <td>Student department & borrow history</td>
+                                <td>Personalized syllabus recommendations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ================= TESTING SUITE ================= -->
+            <div class="page-break" id="sec-testing">
+                <h2>4. Testing Suite (Black & White Box Test Cases)</h2>
+                
+                <h3>4.1 Black Box Testing (Functional Validation)</h3>
+                <div class="table-responsive">
+                    <table class="table table-custom table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Test Case ID</th>
+                                <th>Module / Feature</th>
+                                <th>Input Scenario</th>
+                                <th>Expected Behavior</th>
+                                <th>Actual Result</th>
+                                <th>Pass / Fail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>TC-BB-01</strong></td>
+                                <td>Student Signup</td>
+                                <td>Short password input (&lt; 6 chars)</td>
+                                <td>Display password validation error</td>
+                                <td>"Password must be at least 6 characters" error shown</td>
+                                <td><span class="badge bg-success">PASS</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>TC-BB-02</strong></td>
+                                <td>Stock Gate</td>
+                                <td>Borrowing out-of-stock book</td>
+                                <td>"Request Issue" button is disabled; displays "Out of Stock"</td>
+                                <td>Button correctly disabled and red badge shown</td>
+                                <td><span class="badge bg-success">PASS</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>TC-BB-03</strong></td>
+                                <td>Fine Calculations</td>
+                                <td>Return book 5 days past due date</td>
+                                <td>Applies a dynamic fine of $5.00 automatically</td>
+                                <td>Fine added to record and student balance due</td>
+                                <td><span class="badge bg-success">PASS</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>4.2 White Box Testing (Logical Path Analysis)</h3>
+                <p>We analyze the <strong>AI Recommendations Engine pathing logic (`ai.js`)</strong> using branch coverage parameters:</p>
+                <div class="bg-light p-4 rounded-3 border">
+                    <ul>
+                        <li><strong>Path A (Null History):</strong> Student is newly registered and has no checkout history. 
+                            <br><span class="text-success">-> Result:</span> System returns general trending academic books matching the student's department.
+                        </li>
+                        <li><strong>Path B (Active History):</strong> Student has checked out textbooks in the past.
+                            <br><span class="text-success">-> Result:</span> System scores all books by analyzing matching department weights (+50 pts) and previous category checkouts (+10 pts per match) to present custom lists.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ================= DATABASE SCHEMA ================= -->
+            <div class="page-break" id="sec-database">
+                <h2>5. Production Database Schema</h2>
+                <p>Here is the standard SQL script detail used to initialize the physical database infrastructure:</p>
+                <pre class="bg-dark text-light p-4 rounded-3"><code>-- Relational Tables creation script
+CREATE TABLE students (
+    student_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    balance_due DECIMAL(10, 2) DEFAULT 0.00
+);
+
+CREATE TABLE books (
+    isbn VARCHAR(50) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    total_quantity INT NOT NULL,
+    available_quantity INT NOT NULL
+);
+
+CREATE TABLE circulation_records (
+    record_id VARCHAR(50) PRIMARY KEY,
+    student_id VARCHAR(50) REFERENCES students(student_id),
+    isbn VARCHAR(50) REFERENCES books(isbn),
+    issue_date DATE,
+    due_date DATE,
+    return_date DATE NULL,
+    fine_applied DECIMAL(10, 2) DEFAULT 0.00,
+    status VARCHAR(50) DEFAULT 'Issued'
+);</code></pre>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

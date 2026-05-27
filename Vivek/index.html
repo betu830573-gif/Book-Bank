@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Bank - Premium College Library Exchange</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Font & Custom CSS -->
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="fa-solid fa-graduation-cap fa-xl text-primary me-2 animate-bounce"></i>
+                <span>CAMPUS</span>&nbsp;BOOKBANK
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                </ul>
+                <ul class="navbar-nav" id="nav-right-options">
+                    <!-- Loaded dynamically by app.js -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center">
+        <div class="container mt-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mt-4 mt-lg-0">
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-3">
+                        <i class="fa-solid fa-sparkles me-1 text-warning"></i> AI-Optimized Academic Lending
+                    </span>
+                    <h1 class="hero-title">
+                        Empowering Students With <span>Smarter Textbooks</span> Access.
+                    </h1>
+                    <p class="hero-subtitle">
+                        Stop buying expensive books every semester! Borrow high-demand department textbooks, manage issues/returns, track fines in real-time, and get AI recommendations suited for your engineering syllabus.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="login.html?tab=student" class="btn btn-primary-custom px-4 py-3 fs-6">
+                            <i class="fa-solid fa-user-graduate me-2"></i>Student Portal
+                        </a>
+                        <a href="login.html?tab=admin" class="btn btn-outline-dark rounded-pill px-4 py-3 fs-6 fw-semibold">
+                            <i class="fa-solid fa-user-shield me-2"></i>Admin Area
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                    <div class="position-relative d-inline-block">
+                        <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&q=80&w=600" class="img-fluid rounded-4 shadow-lg border border-5 border-white" alt="Library" style="max-height: 480px; object-fit: cover;">
+                        <div class="position-absolute bottom-0 start-0 translate-middle-y bg-white p-3 rounded-3 shadow-lg border border-light d-flex align-items-center gap-3 ms-4 d-none d-sm-flex">
+                            <div class="bg-primary-subtle p-2 rounded-circle">
+                                <i class="fa-solid fa-book-open-reader text-primary fa-xl"></i>
+                            </div>
+                            <div class="text-start">
+                                <h6 class="mb-0 fw-bold">100% Free Access</h6>
+                                <small class="text-muted">Zero rental costs for students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Counter Bar -->
+    <section class="py-5 bg-white border-bottom border-top">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-md-3 col-6">
+                    <h3 class="fw-extrabold text-primary mb-1">5,000+</h3>
+                    <p class="text-muted mb-0">Total Textbooks</p>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h3 class="fw-extrabold text-primary mb-1">1,200+</h3>
+                    <p class="text-muted mb-0">Active Students</p>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h3 class="fw-extrabold text-primary mb-1">99.4%</h3>
+                    <p class="text-muted mb-0">On-Time Returns</p>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h3 class="fw-extrabold text-primary mb-1">AI-Powered</h3>
+                    <p class="text-muted mb-0">Personalized Engine</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container py-4">
+            <div class="text-center mb-5 max-w-600 mx-auto">
+                <span class="text-primary fw-bold text-uppercase tracking-wider">Features Suite</span>
+                <h2 class="fw-bold mt-2 text-primary">Everything A Modern Campus Needs</h2>
+                <p class="text-muted">State-of-the-art catalog circulation database designed for seamless college distribution.</p>
+            </div>
+            <div class="row g-4">
+                <!-- CS Card -->
+                <div class="col-md-4">
+                    <div class="card book-card border-0 h-100 p-4">
+                        <div class="d-inline-flex bg-primary-subtle p-3 rounded-3 mb-4 text-primary align-self-start">
+                            <i class="fa-solid fa-magnifying-glass fa-2xl"></i>
+                        </div>
+                        <h4 class="fw-bold text-primary">Advanced Search & Inventory</h4>
+                        <p class="text-muted mb-0">Instantly search standard textbooks across Engineering, Business, and Science streams by title, author, or ISBN. Check stock availability in real-time.</p>
+                    </div>
+                </div>
+                <!-- CS Card -->
+                <div class="col-md-4">
+                    <div class="card book-card border-0 h-100 p-4">
+                        <div class="d-inline-flex bg-success-subtle p-3 rounded-3 mb-4 text-success align-self-start">
+                            <i class="fa-solid fa-bolt fa-2xl"></i>
+                        </div>
+                        <h4 class="fw-bold text-primary">AI Recommendations</h4>
+                        <p class="text-muted mb-0">Our bespoke AI engine maps student profiles, departments, and checkout trends to recommend precise syllabus textbooks, helping you stay ahead of the class.</p>
+                    </div>
+                </div>
+                <!-- CS Card -->
+                <div class="col-md-4">
+                    <div class="card book-card border-0 h-100 p-4">
+                        <div class="d-inline-flex bg-warning-subtle p-3 rounded-3 mb-4 text-warning align-self-start">
+                            <i class="fa-solid fa-receipt fa-2xl"></i>
+                        </div>
+                        <h4 class="fw-bold text-primary">Fine & Return Ledger</h4>
+                        <p class="text-muted mb-0">Transparent billing logic displaying overdue accounts, automated warnings, and instant checkout logs to eliminate disputes between students and librarians.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-5 bg-white">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-primary">Hear From Our Academic Community</h2>
+                <p class="text-muted">What students and administration say about our automated exchange system.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="glass-card p-4">
+                        <p class="fst-italic text-muted">"This system saved me over $400 in textbooks this semester alone! The student dashboard lets me request standard engineering resources within seconds, and the AI recommended algorithms suggested outstanding study sheets."</p>
+                        <div class="d-flex align-items-center gap-3 mt-3">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;" alt="Student">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Aria Sharma</h6>
+                                <small class="text-muted">B.Tech Computer Science, Semester 4</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-card p-4">
+                        <p class="fst-italic text-muted">"As a librarian, manually handling book records for over 2,000 students was a massive nightmare. BBMS automated our whole inventory operations, fine management, and book return workflows. Absolute game-changer!"</p>
+                        <div class="d-flex align-items-center gap-3 mt-3">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;" alt="Librarian">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Prof. Rajesh Kumar</h6>
+                                <small class="text-muted">Head Librarian & Inventory Auditor</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h5 class="fw-bold"><i class="fa-solid fa-graduation-cap me-2 text-info"></i>CAMPUS BOOKBANK</h5>
+                    <p class="text-muted mt-3">Providing equal academic opportunity to all students by automating textbooks circulation using advanced digital catalog tools.</p>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Quick Navigation</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#features">Features Suite</a></li>
+                        <li><a href="login.html">Access Dashboard</a></li>
+                        <li><a href="docs/documentation.md">Academic Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4" id="contact">
+                    <h5>Campus Contact</h5>
+                    <p class="text-muted"><i class="fa-solid fa-location-dot me-2"></i>Academic Block C, Campus Central Library</p>
+                    <p class="text-muted"><i class="fa-solid fa-envelope me-2"></i>support@bookbank.college.edu</p>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary">
+            <div class="text-center text-muted">
+                <small>&copy; 2026 Campus Book Bank. Developed for College Student Empowerment.</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core DB & App JS -->
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

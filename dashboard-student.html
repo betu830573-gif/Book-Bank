@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Book Bank</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Font & Custom CSS -->
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg fixed-top mb-5">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="fa-solid fa-graduation-cap fa-xl text-primary me-2"></i>
+                <span>CAMPUS</span>&nbsp;BOOKBANK
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="dashboard-student.html">Dashboard</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item align-self-center">
+                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Workspace Container -->
+    <div class="container mt-5 pt-5">
+        <div class="row pt-3">
+            <!-- Sidebar / Profile -->
+            <div class="col-lg-3 mb-4">
+                <div class="glass-card p-4 text-center">
+                    <div class="position-relative d-inline-block mb-3">
+                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=150" class="rounded-circle border border-4 border-white shadow" style="width: 100px; height: 100px; object-fit: cover;" alt="Avatar">
+                    </div>
+                    <h5 class="fw-bold mb-1" id="profileName">Alex Mercer</h5>
+                    <p class="text-muted small mb-2" id="profileDept">Computer Science</p>
+                    <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill" id="profileId">STU-10023</span>
+
+                    <hr class="my-4">
+
+                    <!-- Student stats -->
+                    <div class="row text-center g-2">
+                        <div class="col-6">
+                            <h4 class="fw-bold mb-0 text-primary" id="statBooksIssued">0</h4>
+                            <small class="text-muted text-uppercase" style="font-size: 0.65rem;">Active Books</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="fw-bold mb-0 text-danger" id="statFines">$0.00</h4>
+                            <small class="text-muted text-uppercase" style="font-size: 0.65rem;">Unpaid Fine</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outstanding Fines Panel -->
+                <div class="glass-card p-4 mt-4" id="finePanel">
+                    <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-credit-card me-2"></i>Fine Management</h6>
+                    <div class="p-3 bg-danger-subtle rounded-3 mb-3 border border-danger-subtle">
+                        <small class="text-muted d-block">Outstanding Balance</small>
+                        <h4 class="fw-bold text-danger mb-0" id="fineBalance">$0.00</h4>
+                    </div>
+                    <button class="btn btn-primary-custom w-100 btn-sm rounded-pill" id="payFineBtn" onclick="triggerFinePayment()">
+                        <i class="fa-solid fa-wallet me-2"></i>Pay Outstanding Balance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="col-lg-9">
+                <!-- AI spark card -->
+                <div class="ai-sparkle-card mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="fw-bold text-primary mb-1">
+                                <i class="fa-solid fa-wand-magic-sparkles me-2 text-info"></i> AI Study Recommendations
+                            </h5>
+                            <p class="text-muted small mb-0">Custom textbook matches based on your branch coursework requirements and current circulation statistics.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-semibold">Syllabus Tuned</span>
+                        </div>
+                    </div>
+                    <!-- Recommendation Grid -->
+                    <div class="row g-3 mt-2" id="aiRecommendationsGrid">
+                        <!-- AI Cards generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Core Books Catalog -->
+                <div class="glass-card p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                        <div>
+                            <h4 class="fw-bold text-primary mb-1">Search College Book Bank</h4>
+                            <p class="text-muted small mb-0">Browse through standard curriculum textbooks and request issuance instantly.</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control rounded-pill px-3" id="catalogSearchInput" placeholder="Search title, author..." style="width: 250px;">
+                            <select class="form-select rounded-pill" id="deptFilter" style="width: 160px;">
+                                <option value="all">All Branches</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Electrical Engineering">Electrical Engineering</option>
+                                <option value="Civil Engineering">Civil Engineering</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Catalog Book Grid -->
+                    <div class="row g-3" id="catalogBookGrid">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+
+                <!-- Active Loan List -->
+                <div class="glass-card p-4 mt-4">
+                    <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-2"></i>My Book Loan History</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ISBN</th>
+                                    <th>Book Details</th>
+                                    <th>Issued Date</th>
+                                    <th>Return/Due Date</th>
+                                    <th>Fine Log</th>
+                                    <th>Circulation Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loanHistoryTable">
+                                <!-- Dynamic loan items -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DB, App, and AI Engines -->
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/ai.js"></script>
+    <script src="assets/js/app.js"></script>
+
+    <!-- Student Dashboard Controller Logic -->
+    <script>
+        // Guard access
+        guardPage('student');
+
+        let student = null;
+
+        function initStudentDashboard() {
+            student = window.db.getCurrentUser();
+            if (!student) return;
+
+            // Bind profile details
+            document.getElementById('profileName').textContent = student.name;
+            document.getElementById('profileDept').textContent = student.department;
+            document.getElementById('profileId').textContent = student.studentId;
+
+            loadStudentData();
+            loadBooksCatalog();
+
+            // Set search hooks
+            document.getElementById('catalogSearchInput').addEventListener('input', loadBooksCatalog);
+            document.getElementById('deptFilter').addEventListener('change', loadBooksCatalog);
+        }
+
+        function loadStudentData() {
+            // Reload student to get updated balance
+            const students = window.db.getStudents();
+            const currentStu = students.find(s => s.studentId === student.studentId);
+            if (currentStu) {
+                student = currentStu;
+            }
+
+            const circulations = window.db.getCirculation();
+            const studentLoans = circulations.filter(c => c.studentId === student.studentId);
+
+            // Set stats
+            const activeLoans = studentLoans.filter(c => c.status === 'Issued');
+            document.getElementById('statBooksIssued').textContent = activeLoans.length;
+            document.getElementById('statFines').textContent = `$${student.balanceDue.toFixed(2)}`;
+            document.getElementById('fineBalance').textContent = `$${student.balanceDue.toFixed(2)}`;
+
+            // Toggle pay button based on fines
+            document.getElementById('payFineBtn').disabled = student.balanceDue <= 0;
+
+            // Load loan history list
+            const tableBody = document.getElementById('loanHistoryTable');
+            tableBody.innerHTML = '';
+
+            if (studentLoans.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No circulation records found for this student.</td></tr>`;
+            } else {
+                studentLoans.forEach(loan => {
+                    const books = window.db.getBooks();
+                    const book = books.find(b => b.isbn === loan.isbn) || { title: 'Unknown Textbook', author: 'Unknown Author' };
+
+                    let badgeClass = 'bg-secondary';
+                    if (loan.status === 'Pending') badgeClass = 'bg-warning text-dark';
+                    else if (loan.status === 'Issued') badgeClass = 'bg-success';
+                    else if (loan.status === 'Returned') badgeClass = 'bg-info text-dark';
+
+                    let returnDueCol = '';
+                    if (loan.status === 'Pending') {
+                        returnDueCol = '<span class="text-muted">Awaiting Approval</span>';
+                    } else if (loan.status === 'Issued') {
+                        returnDueCol = `Due: <strong>${loan.dueDate}</strong>`;
+                    } else if (loan.status === 'Returned') {
+                        returnDueCol = `Returned: <strong>${loan.returnDate}</strong>`;
+                    }
+
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td><code>${loan.isbn}</code></td>
+                            <td>
+                                <div class="fw-bold text-primary">${book.title}</div>
+                                <small class="text-muted">${book.author}</small>
+                            </td>
+                            <td>${loan.issueDate || '—'}</td>
+                            <td>${returnDueCol}</td>
+                            <td><strong class="${loan.fineApplied > 0 ? 'text-danger' : 'text-success'}">$${loan.fineApplied.toFixed(2)}</strong></td>
+                            <td><span class="badge ${badgeClass}">${loan.status}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            loadAIRecommendations();
+        }
+
+        function loadBooksCatalog() {
+            const searchQuery = document.getElementById('catalogSearchInput').value.toLowerCase();
+            const deptFilter = document.getElementById('deptFilter').value;
+
+            const books = window.db.getBooks();
+            const catalogGrid = document.getElementById('catalogBookGrid');
+            catalogGrid.innerHTML = '';
+
+            const filteredBooks = books.filter(book => {
+                const matchesSearch = book.title.toLowerCase().includes(searchQuery) || book.author.toLowerCase().includes(searchQuery) || book.isbn.includes(searchQuery);
+                const matchesDept = (deptFilter === 'all' || book.department === deptFilter);
+                return matchesSearch && matchesDept;
+            });
+
+            if (filteredBooks.length === 0) {
+                catalogGrid.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-inbox fa-3x mb-3 text-secondary"></i><br>No textbooks match your filters.</div>`;
+                return;
+            }
+
+            filteredBooks.forEach(book => {
+                let badgeTheme = 'badge-cs';
+                if (book.department.includes('Mechanical')) badgeTheme = 'badge-me';
+                else if (book.department.includes('Electrical')) badgeTheme = 'badge-ee';
+                else if (book.department.includes('Civil')) badgeTheme = 'badge-ce';
+
+                const circulations = window.db.getCirculation();
+                const alreadyRequested = circulations.some(c => c.studentId === student.studentId && c.isbn === book.isbn && c.status !== 'Returned');
+
+                const btnHtml = alreadyRequested 
+                    ? `<button class="btn btn-secondary w-100 btn-sm rounded-pill mt-3" disabled><i class="fa-solid fa-clock-rotate-left me-1"></i> Active Record</button>`
+                    : book.available_quantity > 0
+                        ? `<button class="btn btn-primary-custom w-100 btn-sm rounded-pill mt-3" onclick="requestBook('${book.isbn}')"><i class="fa-solid fa-book-bookmark me-1"></i> Request Issue</button>`
+                        : `<button class="btn btn-outline-danger w-100 btn-sm rounded-pill mt-3" disabled><i class="fa-solid fa-ban me-1"></i> Out of Stock</button>`;
+
+                catalogGrid.innerHTML += `
+                    <div class="col-md-4">
+                        <div class="card book-card border-0 h-100 p-3">
+                            <div class="book-cover-wrapper mb-3 rounded-3">
+                                <img src="${book.cover_url}" class="book-cover" alt="Cover">
+                            </div>
+                            <span class="badge ${badgeTheme} align-self-start mb-2">${book.department}</span>
+                            <h6 class="fw-bold text-primary mb-1 text-truncate" title="${book.title}">${book.title}</h6>
+                            <p class="text-muted small mb-2 text-truncate">${book.author}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <small class="text-muted">Stock: <strong>${book.available_quantity}/${book.total_quantity}</strong></small>
+                                <span class="badge ${book.available_quantity > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">
+                                    ${book.available_quantity > 0 ? 'Available' : 'Unavailable'}
+                                </span>
+                            </div>
+                            ${btnHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function loadAIRecommendations() {
+            if (!window.aiEngine) return;
+            const recommendations = window.aiEngine.recommendForStudent(student.studentId);
+            const container = document.getElementById('aiRecommendationsGrid');
+            container.innerHTML = '';
+
+            if (recommendations.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center text-muted small py-3">All catalog books of your stream already active or requested.</div>`;
+                return;
+            }
+
+            recommendations.forEach(book => {
+                let badgeTheme = 'badge-cs';
+                if (book.department.includes('Mechanical')) badgeTheme = 'badge-me';
+                else if (book.department.includes('Electrical')) badgeTheme = 'badge-ee';
+
+                container.innerHTML += `
+                    <div class="col-md-3">
+                        <div class="card p-3 border-0 shadow-sm h-100" style="background: rgba(255,255,255,0.7); border: 1px solid white !important;">
+                            <div class="book-cover-wrapper rounded-2 mb-2" style="height: 120px;">
+                                <img src="${book.cover_url}" style="height: 90%;" alt="Cover">
+                            </div>
+                            <h7 class="fw-bold text-primary d-block text-truncate mb-0" title="${book.title}">${book.title}</h7>
+                            <small class="text-muted d-block text-truncate mb-2">${book.author}</small>
+                            <div class="mt-auto">
+                                <small class="d-block text-info fw-semibold mb-2" style="font-size: 0.75rem;"><i class="fa-solid fa-sparkles me-1 animate-pulse"></i>${book.reason}</small>
+                                <button class="btn btn-primary-custom w-100 btn-sm rounded-pill" onclick="requestBook('${book.isbn}')" style="font-size: 0.75rem; padding: 4px 10px;">
+                                    Quick Request
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function requestBook(isbn) {
+            const res = window.db.requestIssue(student.studentId, isbn);
+            if (res.success) {
+                showNotification(res.message, "success");
+                loadStudentData();
+                loadBooksCatalog();
+            } else {
+                showNotification(res.message, "danger");
+            }
+        }
+
+        function triggerFinePayment() {
+            if (student.balanceDue <= 0) return;
+            const res = window.db.payFine(student.studentId, student.balanceDue);
+            if (res.success) {
+                showNotification("Fines paid successfully! Balance clear.", "success");
+                loadStudentData();
+            } else {
+                showNotification(res.message, "danger");
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initStudentDashboard);
+    </script>
+</body>
+</html>

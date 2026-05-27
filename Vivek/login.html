@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Portal - Book Bank System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Font & Custom CSS -->
+    <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i class="fa-solid fa-graduation-cap fa-xl text-primary me-2"></i>
+                <span>CAMPUS</span>&nbsp;BOOKBANK
+            </a>
+            <a href="index.html" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Home
+            </a>
+        </div>
+    </nav>
+
+    <!-- Auth Wrapper -->
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h3 class="fw-bold mb-1">Access Gateway</h3>
+                <p class="mb-0 opacity-75">Connect to your personal Book Bank records</p>
+            </div>
+
+            <!-- Tab Selectors -->
+            <ul class="nav nav-pills nav-fill bg-light p-2" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active py-2 rounded-pill" id="student-tab" data-bs-toggle="tab" data-bs-target="#student-pane" type="button" role="tab">
+                        <i class="fa-solid fa-user-graduate me-1"></i> Student
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link py-2 rounded-pill" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin-pane" type="button" role="tab">
+                        <i class="fa-solid fa-user-shield me-1"></i> Admin
+                    </button>
+                </li>
+            </ul>
+
+            <div class="auth-body tab-content" id="authTabsContent">
+                <!-- ================= Student Pane ================= -->
+                <div class="tab-pane fade show active" id="student-pane" role="tabpanel">
+                    <!-- Form switcher (Login / Signup) -->
+                    <div id="student-login-box">
+                        <h5 class="fw-bold text-primary mb-3">Student Login</h5>
+                        <form id="studentLoginForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Email Address</label>
+                                <input type="email" class="form-control rounded-3" id="stuLoginEmail" placeholder="yourname@college.edu" required autocomplete="username">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Password</label>
+                                <input type="password" class="form-control rounded-3" id="stuLoginPassword" placeholder="••••••••" required autocomplete="current-password">
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom w-100 py-2 rounded-3 mt-2">
+                                <i class="fa-solid fa-right-to-bracket me-2"></i>Sign In
+                            </button>
+                        </form>
+                        <p class="text-center mt-3 mb-0 small text-muted">
+                            New to Book Bank? <a href="#" onclick="toggleStuForms(true)" class="text-primary fw-semibold">Create an account</a>
+                        </p>
+                    </div>
+
+                    <div id="student-signup-box" class="d-none">
+                        <h5 class="fw-bold text-primary mb-3">Student Registration</h5>
+                        <form id="studentSignupForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Student ID / Roll No</label>
+                                <input type="text" class="form-control rounded-3" id="stuRegId" placeholder="e.g. STU-2026-089" required autocomplete="username">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Full Name</label>
+                                <input type="text" class="form-control rounded-3" id="stuRegName" placeholder="Alex Mercer" required autocomplete="name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Email Address</label>
+                                <input type="email" class="form-control rounded-3" id="stuRegEmail" placeholder="yourname@college.edu" required autocomplete="email">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Branch / Department</label>
+                                <select class="form-select rounded-3" id="stuRegDept" required>
+                                    <option value="" disabled selected>Select Department</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                    <option value="Electrical Engineering">Electrical Engineering</option>
+                                    <option value="Civil Engineering">Civil Engineering</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Choose Password</label>
+                                <input type="password" class="form-control rounded-3" id="stuRegPassword" placeholder="Min. 6 characters" required autocomplete="new-password">
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom w-100 py-2 rounded-3 mt-2">
+                                <i class="fa-solid fa-user-plus me-2"></i>Sign Up
+                            </button>
+                        </form>
+                        <p class="text-center mt-3 mb-0 small text-muted">
+                            Already have an account? <a href="#" onclick="toggleStuForms(false)" class="text-primary fw-semibold">Sign In instead</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ================= Admin Pane ================= -->
+                <div class="tab-pane fade" id="admin-pane" role="tabpanel">
+                    <h5 class="fw-bold text-primary mb-3">Admin Portal Access</h5>
+                    <form id="adminLoginForm">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Administrator Email</label>
+                            <input type="email" class="form-control rounded-3" id="adminEmail" placeholder="admin@bookbank.com" required autocomplete="username">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Secret Key Password</label>
+                            <input type="password" class="form-control rounded-3" id="adminPassword" placeholder="••••••••" required autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100 py-2 rounded-3 mt-2">
+                            <i class="fa-solid fa-lock-open me-2"></i>Admin Log In
+                        </button>
+                    </form>
+                    <div class="alert alert-info mt-4 mb-0 small">
+                        <i class="fa-solid fa-circle-info me-1"></i> <strong>Demo Key:</strong><br>
+                        Email: <code>admin@bookbank.com</code><br>
+                        Password: <code>adminpassword</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DB & App JS -->
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/app.js"></script>
+
+    <!-- Auth Controller Logic -->
+    <script>
+        function toggleStuForms(showSignup) {
+            const loginBox = document.getElementById('student-login-box');
+            const signupBox = document.getElementById('student-signup-box');
+            if (showSignup) {
+                loginBox.classList.add('d-none');
+                signupBox.classList.remove('d-none');
+            } else {
+                loginBox.classList.remove('d-none');
+                signupBox.classList.add('d-none');
+            }
+        }
+
+        // Student Login
+        document.getElementById('studentLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('stuLoginEmail').value;
+            const password = document.getElementById('stuLoginPassword').value;
+
+            const res = window.db.loginStudent(email, password);
+            if (res.success) {
+                showNotification("Welcome back, " + res.user.name + "!", "success");
+                setTimeout(() => { window.location.href = "dashboard-student.html"; }, 1000);
+            } else {
+                showNotification(res.message, "danger");
+            }
+        });
+
+        // Student Signup
+        document.getElementById('studentSignupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('stuRegId').value;
+            const name = document.getElementById('stuRegName').value;
+            const email = document.getElementById('stuRegEmail').value;
+            const dept = document.getElementById('stuRegDept').value;
+            const pass = document.getElementById('stuRegPassword').value;
+
+            if (pass.length < 6) {
+                showNotification("Password must be at least 6 characters long.", "danger");
+                return;
+            }
+
+            const res = window.db.signupStudent(id, name, email, pass, dept);
+            if (res.success) {
+                showNotification(res.message, "success");
+                toggleStuForms(false);
+                document.getElementById('stuLoginEmail').value = email;
+            } else {
+                showNotification(res.message, "danger");
+            }
+        });
+
+        // Admin Login
+        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+
+            const res = window.db.loginAdmin(email, password);
+            if (res.success) {
+                showNotification("Welcome back, Administrator!", "success");
+                setTimeout(() => { window.location.href = "dashboard-admin.html"; }, 1000);
+            } else {
+                showNotification(res.message, "danger");
+            }
+        });
+
+        // Pre-fill tab if requested via query param
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get('tab');
+            if (tab === 'admin') {
+                const trigger = document.getElementById('admin-tab');
+                bootstrap.Tab.getOrCreateInstance(trigger).show();
+            }
+        });
+    </script>
+</body>
+</html>
