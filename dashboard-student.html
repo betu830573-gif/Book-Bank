@@ -113,7 +113,7 @@
                             <small class="text-muted text-uppercase" style="font-size: 0.65rem;">Active Books</small>
                         </div>
                         <div class="col-6">
-                            <h4 class="fw-bold mb-0 text-danger" id="statFines">$0.00</h4>
+                            <h4 class="fw-bold mb-0 text-danger" id="statFines">₹0.00</h4>
                             <small class="text-muted text-uppercase" style="font-size: 0.65rem;">Unpaid Fine</small>
                         </div>
                     </div>
@@ -124,7 +124,7 @@
                     <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-credit-card me-2"></i>Fine Management</h6>
                     <div class="p-3 bg-danger-subtle rounded-3 mb-3 border border-danger-subtle">
                         <small class="text-muted d-block">Outstanding Balance</small>
-                        <h4 class="fw-bold text-danger mb-0" id="fineBalance">$0.00</h4>
+                        <h4 class="fw-bold text-danger mb-0" id="fineBalance">₹0.00</h4>
                     </div>
                     <button class="btn btn-primary-custom w-100 btn-sm rounded-pill" id="payFineBtn" onclick="triggerFinePayment()">
                         <i class="fa-solid fa-wallet me-2"></i>Pay Outstanding Balance
@@ -314,8 +314,8 @@
 
             const activeLoans = studentLoans.filter(c => c.status === 'Issued');
             document.getElementById('statBooksIssued').textContent = activeLoans.length;
-            document.getElementById('statFines').textContent = `$${student.balanceDue.toFixed(2)}`;
-            document.getElementById('fineBalance').textContent = `$${student.balanceDue.toFixed(2)}`;
+            document.getElementById('statFines').textContent = `₹${student.balanceDue.toFixed(2)}`;
+            document.getElementById('fineBalance').textContent = `₹${student.balanceDue.toFixed(2)}`;
             document.getElementById('payFineBtn').disabled = student.balanceDue <= 0;
 
             const tableBody = document.getElementById('loanHistoryTable');
@@ -349,7 +349,7 @@
                             </td>
                             <td>${loan.issueDate || '—'}</td>
                             <td>${returnDueCol}</td>
-                            <td><strong class="${loan.fineApplied > 0 ? 'text-danger' : 'text-success'}">$${loan.fineApplied.toFixed(2)}</strong></td>
+                            <td><strong class="${loan.fineApplied > 0 ? 'text-danger' : 'text-success'}">₹${loan.fineApplied.toFixed(2)}</strong></td>
                             <td><span class="badge ${badgeClass}">${loan.status}</span></td>
                         </tr>
                     `;
