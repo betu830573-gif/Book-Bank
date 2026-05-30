@@ -5,13 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard - Book Bank</title>
     <meta name="author" content="Vivek Sen">
-    <meta name="description" content="Book Bank Student Dashboard - Developed by Vivek Sen">
+    <meta name="description" content="Book Bank Student Dashboard with Google Books AI Recommendations - Developed by Vivek Sen">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome 6 Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Font & Custom CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+        /* Google Books Card Styles */
+        .gbook-card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+        .gbook-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(29,53,87,0.12);
+        }
+        .gbook-cover {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #eef1f6;
+        }
+        .rating-stars { color: #f4a261; font-size: 0.75rem; }
+        .google-badge {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+        .search-section {
+            background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%);
+            border-radius: 16px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .tab-btn.active-tab {
+            background: var(--primary, #1d3557);
+            color: white !important;
+        }
+        .spinner-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #457b9d;
+        }
+    </style>
 </head>
 <body>
 
@@ -48,11 +96,13 @@
             <div class="col-lg-3 mb-4">
                 <div class="glass-card p-4 text-center">
                     <div class="position-relative d-inline-block mb-3">
-                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=150" class="rounded-circle border border-4 border-white shadow" style="width: 100px; height: 100px; object-fit: cover;" alt="Avatar">
+                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=150"
+                            class="rounded-circle border border-4 border-white shadow"
+                            style="width: 100px; height: 100px; object-fit: cover;" alt="Avatar">
                     </div>
-                    <h5 class="fw-bold mb-1" id="profileName">Alex Mercer</h5>
-                    <p class="text-muted small mb-2" id="profileDept">Computer Science</p>
-                    <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill" id="profileId">STU-10023</span>
+                    <h5 class="fw-bold mb-1" id="profileName">Loading...</h5>
+                    <p class="text-muted small mb-2" id="profileDept">Department</p>
+                    <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill" id="profileId">STU-XXXXX</span>
 
                     <hr class="my-4">
 
@@ -80,38 +130,104 @@
                         <i class="fa-solid fa-wallet me-2"></i>Pay Outstanding Balance
                     </button>
                 </div>
+
+                <!-- Quick Links -->
+                <div class="glass-card p-4 mt-4">
+                    <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-link me-2"></i>Quick Links</h6>
+                    <a href="https://books.google.com" target="_blank" class="btn btn-outline-primary btn-sm w-100 rounded-pill mb-2">
+                        <i class="fa-brands fa-google me-1"></i> Google Books
+                    </a>
+                    <a href="https://scholar.google.com" target="_blank" class="btn btn-outline-secondary btn-sm w-100 rounded-pill">
+                        <i class="fa-solid fa-graduation-cap me-1"></i> Google Scholar
+                    </a>
+                </div>
             </div>
 
             <!-- Dashboard Content -->
             <div class="col-lg-9">
-                <!-- AI spark card -->
+
+                <!-- ===== GOOGLE BOOKS SEARCH SECTION ===== -->
+                <div class="search-section mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-brands fa-google fa-xl"></i>
+                        <div>
+                            <h5 class="fw-bold mb-0">Google Books Search</h5>
+                            <small class="opacity-75">Search millions of real college & engineering books</small>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control rounded-pill px-4 border-0 shadow-sm" id="googleSearchInput"
+                            placeholder="e.g. Data Structures, Thermodynamics, Digital Electronics...">
+                        <button class="btn btn-warning fw-bold rounded-pill px-4" onclick="searchGoogleBooks()">
+                            <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+                        </button>
+                    </div>
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        <small class="opacity-75">Quick Search:</small>
+                        <button class="btn btn-sm btn-outline-light rounded-pill py-0 px-2" onclick="quickSearch('data structures algorithms')">Data Structures</button>
+                        <button class="btn btn-sm btn-outline-light rounded-pill py-0 px-2" onclick="quickSearch('fluid mechanics engineering')">Fluid Mechanics</button>
+                        <button class="btn btn-sm btn-outline-light rounded-pill py-0 px-2" onclick="quickSearch('electric circuits textbook')">Electric Circuits</button>
+                        <button class="btn btn-sm btn-outline-light rounded-pill py-0 px-2" onclick="quickSearch('soil mechanics civil engineering')">Soil Mechanics</button>
+                    </div>
+                </div>
+
+                <!-- Google Books Search Results -->
+                <div id="googleSearchResults" class="d-none mb-4">
+                    <div class="glass-card p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-primary mb-0">
+                                <i class="fa-brands fa-google me-2 text-primary"></i>Search Results
+                                <span class="badge bg-primary-subtle text-primary ms-2" id="searchResultCount">0</span>
+                            </h5>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="clearSearch()">
+                                <i class="fa-solid fa-xmark me-1"></i>Clear
+                            </button>
+                        </div>
+                        <div class="row g-3" id="googleBooksGrid">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== AI RECOMMENDATIONS SECTION ===== -->
                 <div class="ai-sparkle-card mb-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h5 class="fw-bold text-primary mb-1">
-                                <i class="fa-solid fa-wand-magic-sparkles me-2 text-info"></i> AI Study Recommendations
+                                <i class="fa-solid fa-wand-magic-sparkles me-2 text-info"></i>AI + Google Books Recommendations
                             </h5>
-                            <p class="text-muted small mb-0">Custom textbook matches based on your branch coursework requirements and current circulation statistics.</p>
+                            <p class="text-muted small mb-0">
+                                Smart textbook suggestions powered by your branch + Google Books real-time data + peer circulation trends.
+                            </p>
                         </div>
                         <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                            <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-semibold">Syllabus Tuned</span>
+                            <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-semibold me-1">
+                                <i class="fa-brands fa-google me-1"></i>Live API
+                            </span>
+                            <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-semibold">AI Tuned</span>
                         </div>
                     </div>
                     <!-- Recommendation Grid -->
                     <div class="row g-3 mt-2" id="aiRecommendationsGrid">
-                        <!-- AI Cards generated dynamically -->
+                        <div class="col-12 spinner-loading">
+                            <div class="spinner-border text-primary me-2" role="status"></div>
+                            <span class="text-muted">Fetching personalized recommendations from Google Books...</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Core Books Catalog -->
+                <!-- ===== LOCAL LIBRARY CATALOG ===== -->
                 <div class="glass-card p-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                         <div>
-                            <h4 class="fw-bold text-primary mb-1">Search College Book Bank</h4>
-                            <p class="text-muted small mb-0">Browse through standard curriculum textbooks and request issuance instantly.</p>
+                            <h4 class="fw-bold text-primary mb-1">
+                                <i class="fa-solid fa-building-columns me-2"></i>College Book Bank Catalog
+                            </h4>
+                            <p class="text-muted small mb-0">Browse and request physical books from your college library.</p>
                         </div>
-                        <div class="d-flex gap-2">
-                            <input type="text" class="form-control rounded-pill px-3" id="catalogSearchInput" placeholder="Search title, author..." style="width: 250px;">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <input type="text" class="form-control rounded-pill px-3" id="catalogSearchInput"
+                                placeholder="Search title, author..." style="width: 200px;">
                             <select class="form-select rounded-pill" id="deptFilter" style="width: 160px;">
                                 <option value="all">All Branches</option>
                                 <option value="Computer Science">Computer Science</option>
@@ -128,7 +244,7 @@
                     </div>
                 </div>
 
-                <!-- Active Loan List -->
+                <!-- ===== LOAN HISTORY TABLE ===== -->
                 <div class="glass-card p-4 mt-4">
                     <h5 class="fw-bold text-primary mb-3"><i class="fa-solid fa-list-check me-2"></i>My Book Loan History</h5>
                     <div class="table-responsive">
@@ -140,7 +256,7 @@
                                     <th>Issued Date</th>
                                     <th>Return/Due Date</th>
                                     <th>Fine Log</th>
-                                    <th>Circulation Status</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody id="loanHistoryTable">
@@ -162,7 +278,6 @@
 
     <!-- Student Dashboard Controller Logic -->
     <script>
-        // Guard access
         guardPage('student');
 
         let student = null;
@@ -171,45 +286,44 @@
             student = window.db.getCurrentUser();
             if (!student) return;
 
-            // Bind profile details
             document.getElementById('profileName').textContent = student.name;
             document.getElementById('profileDept').textContent = student.department;
             document.getElementById('profileId').textContent = student.studentId;
 
             loadStudentData();
             loadBooksCatalog();
+            loadAIRecommendations(); // Load Google Books AI Recs
 
-            // Set search hooks
             document.getElementById('catalogSearchInput').addEventListener('input', loadBooksCatalog);
             document.getElementById('deptFilter').addEventListener('change', loadBooksCatalog);
+
+            // Google Books search on Enter key
+            document.getElementById('googleSearchInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') searchGoogleBooks();
+            });
         }
 
         function loadStudentData() {
-            // Reload student to get updated balance
             const students = window.db.getStudents();
             const currentStu = students.find(s => s.studentId === student.studentId);
-            if (currentStu) {
-                student = currentStu;
-            }
+            if (currentStu) student = currentStu;
 
             const circulations = window.db.getCirculation();
             const studentLoans = circulations.filter(c => c.studentId === student.studentId);
 
-            // Set stats
             const activeLoans = studentLoans.filter(c => c.status === 'Issued');
             document.getElementById('statBooksIssued').textContent = activeLoans.length;
             document.getElementById('statFines').textContent = `$${student.balanceDue.toFixed(2)}`;
             document.getElementById('fineBalance').textContent = `$${student.balanceDue.toFixed(2)}`;
-
-            // Toggle pay button based on fines
             document.getElementById('payFineBtn').disabled = student.balanceDue <= 0;
 
-            // Load loan history list
             const tableBody = document.getElementById('loanHistoryTable');
             tableBody.innerHTML = '';
 
             if (studentLoans.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No circulation records found for this student.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">
+                    <i class="fa-solid fa-inbox fa-2x mb-2 d-block text-secondary"></i>No loan records found.
+                </td></tr>`;
             } else {
                 studentLoans.forEach(loan => {
                     const books = window.db.getBooks();
@@ -221,17 +335,13 @@
                     else if (loan.status === 'Returned') badgeClass = 'bg-info text-dark';
 
                     let returnDueCol = '';
-                    if (loan.status === 'Pending') {
-                        returnDueCol = '<span class="text-muted">Awaiting Approval</span>';
-                    } else if (loan.status === 'Issued') {
-                        returnDueCol = `Due: <strong>${loan.dueDate}</strong>`;
-                    } else if (loan.status === 'Returned') {
-                        returnDueCol = `Returned: <strong>${loan.returnDate}</strong>`;
-                    }
+                    if (loan.status === 'Pending') returnDueCol = '<span class="text-muted">Awaiting Approval</span>';
+                    else if (loan.status === 'Issued') returnDueCol = `Due: <strong class="text-danger">${loan.dueDate}</strong>`;
+                    else if (loan.status === 'Returned') returnDueCol = `Returned: <strong>${loan.returnDate}</strong>`;
 
                     tableBody.innerHTML += `
                         <tr>
-                            <td><code>${loan.isbn}</code></td>
+                            <td><code>${loan.isbn.substring(0,12)}</code></td>
                             <td>
                                 <div class="fw-bold text-primary">${book.title}</div>
                                 <small class="text-muted">${book.author}</small>
@@ -244,8 +354,6 @@
                     `;
                 });
             }
-
-            loadAIRecommendations();
         }
 
         function loadBooksCatalog() {
@@ -257,13 +365,17 @@
             catalogGrid.innerHTML = '';
 
             const filteredBooks = books.filter(book => {
-                const matchesSearch = book.title.toLowerCase().includes(searchQuery) || book.author.toLowerCase().includes(searchQuery) || book.isbn.includes(searchQuery);
+                const matchesSearch = book.title.toLowerCase().includes(searchQuery) ||
+                    book.author.toLowerCase().includes(searchQuery) ||
+                    book.isbn.includes(searchQuery);
                 const matchesDept = (deptFilter === 'all' || book.department === deptFilter);
                 return matchesSearch && matchesDept;
             });
 
             if (filteredBooks.length === 0) {
-                catalogGrid.innerHTML = `<div class="col-12 text-center text-muted py-5"><i class="fa-solid fa-inbox fa-3x mb-3 text-secondary"></i><br>No textbooks match your filters.</div>`;
+                catalogGrid.innerHTML = `<div class="col-12 text-center text-muted py-5">
+                    <i class="fa-solid fa-inbox fa-3x mb-3 text-secondary"></i><br>No textbooks match your filters.
+                </div>`;
                 return;
             }
 
@@ -274,19 +386,24 @@
                 else if (book.department.includes('Civil')) badgeTheme = 'badge-ce';
 
                 const circulations = window.db.getCirculation();
-                const alreadyRequested = circulations.some(c => c.studentId === student.studentId && c.isbn === book.isbn && c.status !== 'Returned');
+                const alreadyRequested = circulations.some(c =>
+                    c.studentId === student.studentId && c.isbn === book.isbn && c.status !== 'Returned');
 
-                const btnHtml = alreadyRequested 
-                    ? `<button class="btn btn-secondary w-100 btn-sm rounded-pill mt-3" disabled><i class="fa-solid fa-clock-rotate-left me-1"></i> Active Record</button>`
+                const btnHtml = alreadyRequested
+                    ? `<button class="btn btn-secondary w-100 btn-sm rounded-pill mt-3" disabled>
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Active Record</button>`
                     : book.available_quantity > 0
-                        ? `<button class="btn btn-primary-custom w-100 btn-sm rounded-pill mt-3" onclick="requestBook('${book.isbn}')"><i class="fa-solid fa-book-bookmark me-1"></i> Request Issue</button>`
-                        : `<button class="btn btn-outline-danger w-100 btn-sm rounded-pill mt-3" disabled><i class="fa-solid fa-ban me-1"></i> Out of Stock</button>`;
+                        ? `<button class="btn btn-primary-custom w-100 btn-sm rounded-pill mt-3" onclick="requestBook('${book.isbn}')">
+                            <i class="fa-solid fa-book-bookmark me-1"></i> Request Issue</button>`
+                        : `<button class="btn btn-outline-danger w-100 btn-sm rounded-pill mt-3" disabled>
+                            <i class="fa-solid fa-ban me-1"></i> Out of Stock</button>`;
 
                 catalogGrid.innerHTML += `
                     <div class="col-md-4">
                         <div class="card book-card border-0 h-100 p-3">
                             <div class="book-cover-wrapper mb-3 rounded-3">
-                                <img src="${book.cover_url}" class="book-cover" alt="Cover">
+                                <img src="${book.cover_url}" class="book-cover" alt="Cover"
+                                    onerror="this.src='https://via.placeholder.com/150x200/1d3557/fff?text=No+Cover'">
                             </div>
                             <span class="badge ${badgeTheme} align-self-start mb-2">${book.department}</span>
                             <h6 class="fw-bold text-primary mb-1 text-truncate" title="${book.title}">${book.title}</h6>
@@ -304,40 +421,144 @@
             });
         }
 
-        function loadAIRecommendations() {
+        // ===== AI Recommendations with Google Books =====
+        async function loadAIRecommendations() {
             if (!window.aiEngine) return;
-            const recommendations = window.aiEngine.recommendForStudent(student.studentId);
-            const container = document.getElementById('aiRecommendationsGrid');
-            container.innerHTML = '';
 
-            if (recommendations.length === 0) {
-                container.innerHTML = `<div class="col-12 text-center text-muted small py-3">All catalog books of your stream already active or requested.</div>`;
+            const container = document.getElementById('aiRecommendationsGrid');
+            container.innerHTML = `<div class="col-12 spinner-loading">
+                <div class="spinner-border text-primary me-2" role="status"></div>
+                <span class="text-muted">Fetching from Google Books API...</span>
+            </div>`;
+
+            try {
+                const recommendations = await window.aiEngine.recommendForStudent(student.studentId);
+                container.innerHTML = '';
+
+                if (!recommendations || recommendations.length === 0) {
+                    container.innerHTML = `<div class="col-12 text-center text-muted small py-3">
+                        No recommendations available at this time.
+                    </div>`;
+                    return;
+                }
+
+                recommendations.forEach(book => {
+                    const isGoogleBook = book.source === 'google_books';
+                    const stars = book.rating ? '★'.repeat(Math.round(book.rating)) + '☆'.repeat(5 - Math.round(book.rating)) : '';
+
+                    container.innerHTML += `
+                        <div class="col-md-3 col-6">
+                            <div class="gbook-card p-0 d-flex flex-column">
+                                <div style="height:140px; overflow:hidden; background:#eef1f6; border-radius: 12px 12px 0 0;">
+                                    <img src="${book.cover_url}" class="gbook-cover"
+                                        onerror="this.src='https://via.placeholder.com/128x180/1d3557/fff?text=Book'"
+                                        alt="${book.title}">
+                                </div>
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    ${isGoogleBook ? '<span class="google-badge mb-1 align-self-start"><i class="fa-brands fa-google me-1"></i>Google Books</span>' : ''}
+                                    <h6 class="fw-bold text-primary mb-1 text-truncate" style="font-size:0.85rem;" title="${book.title}">${book.title}</h6>
+                                    <small class="text-muted d-block text-truncate mb-1">${book.author}</small>
+                                    ${stars ? `<div class="rating-stars mb-1">${stars} <small class="text-muted">(${book.rating})</small></div>` : ''}
+                                    <small class="text-info fw-semibold d-block mb-2" style="font-size:0.7rem;">
+                                        <i class="fa-solid fa-sparkles me-1"></i>${book.reason}
+                                    </small>
+                                    <div class="mt-auto d-flex gap-1">
+                                        ${isGoogleBook
+                                            ? `<a href="${book.previewLink}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1" style="font-size:0.7rem;">
+                                                <i class="fa-brands fa-google me-1"></i>Preview
+                                               </a>`
+                                            : `<button class="btn btn-primary-custom btn-sm rounded-pill flex-grow-1" onclick="requestBook('${book.isbn}')" style="font-size:0.7rem;">
+                                                Request
+                                               </button>`
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            } catch (err) {
+                container.innerHTML = `<div class="col-12 text-center text-muted small py-3">
+                    <i class="fa-solid fa-wifi me-1"></i> Unable to fetch Google Books. Check internet connection.
+                </div>`;
+            }
+        }
+
+        // ===== Google Books Search =====
+        async function searchGoogleBooks() {
+            const query = document.getElementById('googleSearchInput').value.trim();
+            if (!query) {
+                showNotification("Please enter a search query!", "warning");
                 return;
             }
 
-            recommendations.forEach(book => {
-                let badgeTheme = 'badge-cs';
-                if (book.department.includes('Mechanical')) badgeTheme = 'badge-me';
-                else if (book.department.includes('Electrical')) badgeTheme = 'badge-ee';
+            const resultsSection = document.getElementById('googleSearchResults');
+            const grid = document.getElementById('googleBooksGrid');
+            resultsSection.classList.remove('d-none');
+            grid.innerHTML = `<div class="col-12 spinner-loading">
+                <div class="spinner-border text-primary me-2" role="status"></div>
+                <span class="text-muted">Searching Google Books for "${query}"...</span>
+            </div>`;
 
-                container.innerHTML += `
-                    <div class="col-md-3">
-                        <div class="card p-3 border-0 shadow-sm h-100" style="background: rgba(255,255,255,0.7); border: 1px solid white !important;">
-                            <div class="book-cover-wrapper rounded-2 mb-2" style="height: 120px;">
-                                <img src="${book.cover_url}" style="height: 90%;" alt="Cover">
-                            </div>
-                            <h7 class="fw-bold text-primary d-block text-truncate mb-0" title="${book.title}">${book.title}</h7>
-                            <small class="text-muted d-block text-truncate mb-2">${book.author}</small>
-                            <div class="mt-auto">
-                                <small class="d-block text-info fw-semibold mb-2" style="font-size: 0.75rem;"><i class="fa-solid fa-sparkles me-1 animate-pulse"></i>${book.reason}</small>
-                                <button class="btn btn-primary-custom w-100 btn-sm rounded-pill" onclick="requestBook('${book.isbn}')" style="font-size: 0.75rem; padding: 4px 10px;">
-                                    Quick Request
-                                </button>
+            try {
+                const results = await window.aiEngine.searchGoogleBooks(query, 10);
+                grid.innerHTML = '';
+                document.getElementById('searchResultCount').textContent = results.length;
+
+                if (results.length === 0) {
+                    grid.innerHTML = `<div class="col-12 text-center text-muted py-4">
+                        <i class="fa-solid fa-search fa-2x mb-2 d-block"></i>No results found for "${query}".
+                    </div>`;
+                    return;
+                }
+
+                results.forEach(book => {
+                    const stars = book.rating ? '★'.repeat(Math.round(book.rating)) + '☆'.repeat(5 - Math.round(book.rating)) : '';
+                    grid.innerHTML += `
+                        <div class="col-md-4 col-6">
+                            <div class="gbook-card p-0 d-flex flex-column">
+                                <div style="height:150px; overflow:hidden; background:#eef1f6; border-radius: 12px 12px 0 0;">
+                                    <img src="${book.cover_url}" class="gbook-cover"
+                                        onerror="this.src='https://via.placeholder.com/128x150/1d3557/fff?text=Book'"
+                                        alt="${book.title}">
+                                </div>
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    <span class="google-badge mb-1 align-self-start"><i class="fa-brands fa-google me-1"></i>Google Books</span>
+                                    <h6 class="fw-bold text-primary mb-1" style="font-size:0.85rem;" title="${book.title}">${book.title}</h6>
+                                    <small class="text-muted d-block text-truncate mb-1">${book.author}</small>
+                                    ${stars ? `<div class="rating-stars mb-1">${stars} <small>(${book.rating})</small></div>` : ''}
+                                    ${book.publishedDate !== 'N/A' ? `<small class="text-muted mb-1">Published: ${book.publishedDate}</small>` : ''}
+                                    ${book.pageCount !== 'N/A' ? `<small class="text-muted mb-2">${book.pageCount} pages</small>` : ''}
+                                    <div class="mt-auto">
+                                        <a href="${book.previewLink}" target="_blank"
+                                            class="btn btn-primary-custom btn-sm rounded-pill w-100" style="font-size:0.75rem;">
+                                            <i class="fa-brands fa-google me-1"></i> Read Preview
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+
+            } catch (err) {
+                grid.innerHTML = `<div class="col-12 text-center text-danger py-4">
+                    <i class="fa-solid fa-circle-exclamation fa-2x mb-2 d-block"></i>
+                    Failed to connect to Google Books API. Please check your internet.
+                </div>`;
+            }
+        }
+
+        function quickSearch(query) {
+            document.getElementById('googleSearchInput').value = query;
+            searchGoogleBooks();
+        }
+
+        function clearSearch() {
+            document.getElementById('googleSearchResults').classList.add('d-none');
+            document.getElementById('googleSearchInput').value = '';
+            document.getElementById('googleBooksGrid').innerHTML = '';
         }
 
         function requestBook(isbn) {
