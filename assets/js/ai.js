@@ -1,14 +1,20 @@
 /**
- * AI-Based Book Recommendation Engine for Book Bank Management System
- * Upgraded with Google Books API Integration
- * Author: Vivek Sen
+ * AI-Based Book Recommendation Engine for Book Bank System
+ * Clean + Fixed + Production Safe Version
+ * Author: Vivek Sen (Upgraded)
  */
 
-// ===== GOOGLE BOOKS API =====
-const API_KEY = "AIzaSyBC4DiJJUsHQFBoiYLOTstcURkcnpf2LqY";
+"use strict";
+
+// =====================
+// GOOGLE BOOKS API
+// =====================
+const API_KEY = "AIzaSyBC4DiJJUsFBoiYLOTstcURkcnpf2LqY";
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
 
-// Department to Search Keywords Mapping for College Books
+// =====================
+// DEPARTMENT KEYWORDS
+// =====================
 const DEPT_KEYWORDS = {
     'Computer Science': [
         'data structures algorithms', 'operating systems', 'computer networks',
@@ -32,208 +38,199 @@ const DEPT_KEYWORDS = {
     ]
 };
 
+// =====================
+// ENGINE CLASS
+// =====================
 class BookRecommendationEngine {
     constructor() {
-        this.googleBooksCache = {};
+        this.cache = {};
     }
 
-    /**
-     * Fetch real college books from Google Books API based on department
-     * @param {string} department
-     * @param {number} maxResults
-     * @returns {Promise<Array>}
-     */
+    // =====================
+    // FETCH GOOGLE BOOKS (BY DEPT)
+    // =====================
     async fetchFromGoogleBooks(department, maxResults = 8) {
         const keywords = DEPT_KEYWORDS[department] || ['engineering textbook'];
-
-        // Pick a random keyword for variety
         const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
-        const cacheKey = department + '_' + randomKeyword;
 
-        // Use cache if available
-        if (this.googleBooksCache[cacheKey]) {
-            return this.googleBooksCache[cacheKey];
+        const cacheKey = `${department}_${randomKeyword}`;
+
+        if (this.cache[cacheKey]) {
+            return this.cache[cacheKey];
         }
 
         try {
-            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(randomKeyword + ' textbook college')}&maxResults=${maxResults}&printType=books&langRestrict=en&orderBy=relevance&key=${API_KEY}`;
-             console.log("Request URL:", url);
+            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(
+                randomKeyword + " textbook college"
+            )}&maxResults=${maxResults}&printType=books&langRestrict=en&orderBy=relevance&key=${API_KEY}`;
 
-const response = await fetch(url);
+            const response = await fetch(url);
 
-console.log("Status:", response.status);
+            if (!response.ok) {
+                throw new Error(`Google API Error: ${response.status}`);
+            }
 
-if (!response.ok) {
-    const errorText = await response.text();
-    console.error(errorText);
-    throw new Error(`HTTP Error: ${response.status}`);
-}
-
-const data = await response.json();
-console.log(data);
+            const data = await response.json();
             if (!data.items) return [];
 
             const books = data.items.map(item => {
                 const info = item.volumeInfo;
+
                 return {
                     isbn: item.id,
-                    title: info.title || 'Unknown Title',
-                    author: info.authors ? info.authors.join(', ') : 'Unknown Author',
-                    department: department,
-                    description: info.description ? info.description.substring(0, 150) + '...' : 'No description available.',
-                    cover_url: info.imageLinks ? info.imageLinks.thumbnail : 'https://via.placeholder.com/128x192/1d3557/ffffff?text=No+Cover',
-                    previewLink: info.previewLink || '#',
-                    publishedDate: info.publishedDate || 'N/A',
-                    pageCount: info.pageCount || 'N/A',
+                    title: info.title || "Unknown Title",
+                    author: info.authors?.join(", ") || "Unknown Author",
+                    department,
+                    description: info.description?.substring(0, 150) || "",
+                    cover_url: info.imageLinks?.thumbnail ||
+                        "https://via.placeholder.com/128x192?text=No+Cover",
+                    previewLink: info.previewLink || "#",
+                    publishedDate: info.publishedDate || "N/A",
+                    pageCount: info.pageCount || "N/A",
                     rating: info.averageRating || null,
+                    source: "google_books",
                     available_quantity: 1,
                     total_quantity: 1,
-                    source: 'google_books',
-                    reason: `Top ${department} college textbook`
+                    reason: `Recommended for ${department}`
                 };
             });
 
-            this.googleBooksCache[cacheKey] = books;
+            this.cache[cacheKey] = books;
             return books;
 
-        } catch (error) {
-            console.error('Google Books API Error:', error);
+        } catch (err) {
+            console.error("Google Books Error:", err);
             return [];
         }
     }
 
-    /**
-     * Search Google Books API by query
-     * @param {string} query
-     * @param {number} maxResults
-     * @returns {Promise<Array>}
-     */
+    // =====================
+    // SEARCH GOOGLE BOOKS
+    // =====================
     async searchGoogleBooks(query, maxResults = 10) {
         try {
             const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&printType=books&langRestrict=en&key=${API_KEY}`;
-             console.log("Request URL:", url);
 
-const response = await fetch(url);
+            const response = await fetch(url);
 
-console.log("Status:", response.status);
+            if (!response.ok) {
+                throw new Error(`Search API Error: ${response.status}`);
+            }
 
-if (!response.ok) {
-    const errorText = await response.text();
-    console.error(errorText);
-    throw new Error(`HTTP Error: ${response.status}`);
-}
-
-const data = await response.json();
-console.log(data);
-
+            const data = await response.json();
             if (!data.items) return [];
 
             return data.items.map(item => {
                 const info = item.volumeInfo;
+
                 return {
                     isbn: item.id,
-                    title: info.title || 'Unknown Title',
-                    author: info.authors ? info.authors.join(', ') : 'Unknown Author',
-                    department: info.categories ? info.categories[0] : 'General',
-                    description: info.description ? info.description.substring(0, 200) + '...' : 'No description available.',
-                    cover_url: info.imageLinks ? info.imageLinks.thumbnail : 'https://via.placeholder.com/128x192/1d3557/ffffff?text=No+Cover',
-                    previewLink: info.previewLink || '#',
-                    publishedDate: info.publishedDate || 'N/A',
-                    pageCount: info.pageCount || 'N/A',
+                    title: info.title || "Unknown Title",
+                    author: info.authors?.join(", ") || "Unknown Author",
+                    department: info.categories?.[0] || "General",
+                    description: info.description?.substring(0, 200) || "",
+                    cover_url: info.imageLinks?.thumbnail ||
+                        "https://via.placeholder.com/128x192?text=No+Cover",
+                    previewLink: info.previewLink || "#",
+                    publishedDate: info.publishedDate || "N/A",
+                    pageCount: info.pageCount || "N/A",
                     rating: info.averageRating || null,
-                    available_quantity: 1,
-                    total_quantity: 1,
-                    source: 'google_books'
+                    source: "google_books"
                 };
             });
-        } catch (error) {
-            console.error('Google Books Search Error:', error);
+
+        } catch (err) {
+            console.error("Search Error:", err);
             return [];
         }
     }
 
-    /**
-     * Get AI Recommendations for Student (Local DB + Google Books)
-     * @param {string} studentId
-     * @param {Function} callback - called with recommendations array
-     */
-    async recommendForStudent(studentId, callback) {
-        if (!window.db) {
-            console.error("DB Engine not loaded.");
-            if (callback) callback([]);
-            return;
+    // =====================
+    // AI RECOMMENDATIONS
+    // =====================
+    async recommendForStudent(studentId) {
+        try {
+            if (!window.db) return [];
+
+            const students = window.db.getStudents();
+            const student = students.find(s => s.studentId === studentId);
+
+            const department = student?.department || "Computer Science";
+
+            const books = window.db.getBooks();
+            const circulations = window.db.getCirculation();
+            const history = circulations.filter(c => c.studentId === studentId);
+
+            // =====================
+            // LOCAL RECOMMENDATION
+            // =====================
+            let local = books.map(book => {
+                let score = 0;
+
+                const active = history.find(c =>
+                    c.isbn === book.isbn && c.status !== "Returned"
+                );
+
+                if (active) return null;
+
+                if (book.department === department) score += 50;
+
+                const count = circulations.filter(c => c.isbn === book.isbn).length;
+                score += count * 5;
+
+                if (book.available_quantity > 0) score += 10;
+
+                return {
+                    ...book,
+                    score,
+                    source: "local",
+                    reason: "Recommended based on your department"
+                };
+            }).filter(Boolean)
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 3);
+
+            // =====================
+            // GOOGLE BOOKS
+            // =====================
+            const google = await this.fetchFromGoogleBooks(department, 5);
+
+            // =====================
+            // COMBINE RESULTS
+            // =====================
+            return [...local, ...google];
+
+        } catch (err) {
+            console.error("Recommendation Error:", err);
+            return [];
         }
-
-        const students = window.db.getStudents();
-        const student = students.find(s => s.studentId === studentId);
-
-        const department = student ? student.department : 'Computer Science';
-        const allBooks = window.db.getBooks();
-        const circulations = window.db.getCirculation();
-        const studentHistory = student ? circulations.filter(c => c.studentId === studentId) : [];
-
-        // --- Local DB Recommendations (scored) ---
-        let localRecs = allBooks.map(book => {
-            let score = 0;
-            let reasons = [];
-
-            const activeRecord = studentHistory.find(c => c.isbn === book.isbn && c.status !== 'Returned');
-            if (activeRecord) return null;
-
-            if (book.department.toLowerCase() === department.toLowerCase()) {
-                score += 50;
-                reasons.push(`Aligned with your ${department} curriculum`);
-            }
-
-            const pastDeptBorrows = studentHistory.filter(c => {
-                const b = allBooks.find(bk => bk.isbn === c.isbn);
-                return b && b.department === book.department;
-            }).length;
-            if (pastDeptBorrows > 0) {
-                score += (pastDeptBorrows * 10);
-                reasons.push(`Matches your active study topics`);
-            }
-
-            const globalCheckoutCount = circulations.filter(c => c.isbn === book.isbn).length;
-            if (globalCheckoutCount > 0) {
-                score += (globalCheckoutCount * 5);
-                reasons.push(`Highly demanded by your peers`);
-            }
-
-            if (book.available_quantity > 0) score += 15;
-            else score -= 30;
-
-            return { ...book, score, reason: reasons.length > 0 ? reasons[0] : "Recommended course material", source: 'local' };
-        }).filter(b => b !== null).sort((a, b) => b.score - a.score).slice(0, 2);
-
-        // --- Google Books Recommendations ---
-        const googleRecs = await this.fetchFromGoogleBooks(department, 6);
-
-        // Combine: Local (top 2) + Google Books (top 6)
-        const combined = [...localRecs, ...googleRecs];
-
-        if (callback) callback(combined);
-        return combined;
     }
 
-    /**
-     * Fallback general trending from local DB
-     */
+    // =====================
+    // TRENDING BOOKS
+    // =====================
     getLocalTrending() {
         if (!window.db) return [];
-        const allBooks = window.db.getBooks();
+
+        const books = window.db.getBooks();
         const circulations = window.db.getCirculation();
-        return allBooks.map(book => {
-            const checkoutCount = circulations.filter(c => c.isbn === book.isbn).length;
+
+        return books.map(book => {
+            const count = circulations.filter(c => c.isbn === book.isbn).length;
+
             return {
                 ...book,
-                score: checkoutCount * 10,
-                reason: checkoutCount > 0 ? "Trending across branches" : "Essential library textbook",
-                source: 'local'
+                score: count,
+                source: "local",
+                reason: "Trending in college"
             };
-        }).sort((a, b) => b.score - a.score).slice(0, 4);
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
     }
 }
 
-// Global Single Instance
+// =====================
+// GLOBAL ENGINE
+// =====================
 window.aiEngine = new BookRecommendationEngine();
