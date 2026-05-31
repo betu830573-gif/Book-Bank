@@ -1,137 +1,95 @@
 /**
- * Global App Controller for Book Bank Management System (IMPROVED)
+ * Global App Controller for Book Bank Management System
  */
 
-// ========================
-// Toast Notification (SAFE)
-// ========================
+// Custom Toast Notification System
 function showNotification(message, type = 'success') {
-    if (!message) return;
-
+    // Remove existing notification if any
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
 
     const notification = document.createElement('div');
-    notification.className = 'notification';
-
-    const icons = {
-        success: 'fa-check-circle',
-        danger: 'fa-exclamation-circle',
-        warning: 'fa-triangle-exclamation',
-        info: 'fa-info-circle'
-    };
-
-    const colors = {
-        success: 'linear-gradient(135deg, #2a9d8f, #21867a)',
-        danger: 'linear-gradient(135deg, #e63946, #d62246)',
-        warning: 'linear-gradient(135deg, #f4a261, #e76f51)',
-        info: 'linear-gradient(135deg, #457b9d, #1d3557)'
-    };
-
-    notification.style.background = colors[type] || colors.success;
+    notification.className = `notification`;
+    if (type === 'danger') {
+        notification.style.background = 'linear-gradient(135deg, #e63946 0%, #d62246 100%)';
+    } else if (type === 'warning') {
+        notification.style.background = 'linear-gradient(135deg, #f4a261 0%, #e76f51 100%)';
+    }
 
     notification.innerHTML = `
-        <i class="fas ${icons[type] || icons.success}"></i>
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
         <span>${message}</span>
     `;
 
     document.body.appendChild(notification);
 
-    requestAnimationFrame(() => {
+    // Trigger reflow & show
+    setTimeout(() => {
         notification.classList.add('show');
-    });
+    }, 50);
 
+    // Hide and remove
     setTimeout(() => {
         notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+        setTimeout(() => {
+            notification.remove();
+        }, 400);
+    }, 3500);
 }
 
-// ========================
-// Navbar Sync (SAFE + FAST)
-// ========================
+// Navigation Bar Auth Synchronizer
 function syncNavBar() {
     const navRight = document.getElementById('nav-right-options');
     if (!navRight) return;
 
-    if (!window.db || typeof window.db.getCurrentUser !== 'function') return;
-
+    if (!window.db) return;
     const user = window.db.getCurrentUser();
 
-    // Clear first (avoid flicker duplicates)
-    navRight.innerHTML = '';
-
-    if (user && user.role) {
-        const dashboardUrl =
-            user.role === 'admin'
-                ? 'dashboard-admin.html'
-                : 'dashboard-student.html';
-
+    if (user) {
+        let dashboardUrl = user.role === 'admin' ? 'dashboard-admin.html' : 'dashboard-student.html';
         navRight.innerHTML = `
             <li class="nav-item">
-                <a class="nav-link fw-bold text-primary" href="${dashboardUrl}">
+                <a class="nav-link active fw-bold text-primary" href="${dashboardUrl}">
                     <i class="fas fa-th-large me-1"></i> Dashboard
                 </a>
             </li>
-            <li class="nav-item ms-2">
-                <button class="btn btn-outline-danger btn-sm rounded-pill px-3" id="logoutBtn">
+            <li class="nav-item align-self-center ms-2">
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt me-1"></i> Logout
                 </button>
             </li>
         `;
-
-        // safer event binding (no inline onclick)
-        const btn = document.getElementById('logoutBtn');
-        if (btn) {
-            btn.addEventListener('click', handleLogout);
-        }
-
     } else {
         navRight.innerHTML = `
             <li class="nav-item">
-                <a class="nav-link" href="login.html?tab=student">
-                    <i class="fas fa-user me-1"></i> Student Portal
-                </a>
+                <a class="nav-link" href="login.html?tab=student"><i class="fas fa-user-grad me-1"></i> Student Portal</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="login.html?tab=admin">
-                    <i class="fas fa-user-shield me-1"></i> Admin Portal
-                </a>
+                <a class="nav-link" href="login.html?tab=admin"><i class="fas fa-user-shield me-1"></i> Admin Portal</a>
             </li>
-            <li class="nav-item ms-2">
-                <a class="btn btn-primary btn-sm text-white" href="login.html">
-                    <i class="fas fa-sign-in-alt me-1"></i> Login
+            <li class="nav-item align-self-center ms-2">
+                <a class="btn btn-primary-custom btn-sm text-white" href="login.html">
+                    <i class="fas fa-sign-in-alt me-1"></i> Access System
                 </a>
             </li>
         `;
     }
 }
 
-// ========================
-// Logout (SAFE)
-// ========================
+// Handle User Logout
 function handleLogout() {
-    if (!window.db) return;
-
-    try {
+    if (window.db) {
         window.db.logout();
-        showNotification("Logged out successfully", "success");
-
+        showNotification("Logged out successfully. Redirecting...", "success");
         setTimeout(() => {
             window.location.href = "index.html";
-        }, 1000);
-
-    } catch (err) {
-        console.error("Logout error:", err);
+        }, 1200);
     }
 }
 
-// ========================
-// Route Protection (SAFE)
-// ========================
+// Authentication Guards for Dashboards
 function guardPage(requiredRole) {
     if (!window.db) return;
-
     const user = window.db.getCurrentUser();
 
     if (!user) {
@@ -140,24 +98,14 @@ function guardPage(requiredRole) {
     }
 
     if (requiredRole && user.role !== requiredRole) {
-        showNotification("Access denied", "danger");
-
+        showNotification("Access Denied: Unauthorized role.", "danger");
         setTimeout(() => {
-            window.location.href =
-                user.role === 'admin'
-                    ? 'dashboard-admin.html'
-                    : 'dashboard-student.html';
-        }, 1200);
+            window.location.href = user.role === 'admin' ? 'dashboard-admin.html' : 'dashboard-student.html';
+        }, 1500);
     }
 }
 
-// ========================
-// Init (SAFE LOAD)
-// ========================
+// Initialize navbar sync on load
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        syncNavBar();
-    } catch (e) {
-        console.error("Navbar init failed:", e);
-    }
-});
+    syncNavBar();
+}); improve met karo 
