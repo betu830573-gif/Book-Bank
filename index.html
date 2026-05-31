@@ -226,5 +226,25 @@
     <!-- Core DB & App JS -->
     <script src="assets/js/db.js"></script>
     <script src="assets/js/app.js"></script>
+
+    
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const books = db.getBooks();
+    const students = db.getStudents();
+    const circulation = db.getCirculation();
+
+    document.getElementById('totalBooks').textContent = books.length;
+    document.getElementById('totalStudents').textContent = students.length;
+
+    const issuedBooks = circulation.filter(
+        item => item.status === 'Issued'
+    ).length;
+
+    document.getElementById('issuedBooks').textContent = issuedBooks;
+    document.getElementById('activeUsers').textContent = circulation.length;
+});
+</script>
 </body>
 </html>
