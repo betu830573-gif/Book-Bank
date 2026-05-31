@@ -194,11 +194,34 @@
                 </div>
 
                 <!-- ===== AI RECOMMENDATIONS SECTION ===== -->
+                <div class="alert alert-success mt-3 small">
+🤖 AI is analyzing your study pattern...
+</div>
+                <div class="glass-card p-4 mb-4">
+    <h5 class="fw-bold text-primary">
+        <i class="fa-solid fa-robot me-2"></i>
+        AI Study Assistant
+    </h5>
+
+    <textarea id="studyQuestion" class="form-control mb-3"
+        rows="3"
+        placeholder="Example: Explain DBMS Normalization"></textarea>
+
+    <button class="btn btn-primary-custom rounded-pill"
+        onclick="askStudyAssistant()">
+        🤖 Ask AI
+    </button>
+
+                 <div id="studyAnswer" class="alert alert-info mt-3 d-none">
+    <strong>🤖 AI Response:</strong>
+    <div id="studyAnswerText"></div>
+</div>
+</div>
                 <div class="ai-sparkle-card mb-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h5 class="fw-bold text-primary mb-1">
-                                <i class="fa-solid fa-wand-magic-sparkles me-2 text-info"></i>AI + Google Books Recommendations
+                                <i class="fa-solid fa-wand-magic-sparkles me-2 text-info"></i>AI Powered Smart Recommendations (Gemini + Google Books API)
                             </h5>
                             <p class="text-muted small mb-0">
                                 Smart textbook suggestions powered by your branch + Google Books real-time data + peer circulation trends.
@@ -211,6 +234,16 @@
                             <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-semibold">AI Tuned</span>
                         </div>
                     </div>
+
+                    <div class="glass-card p-4 mb-4">
+    <h5 class="fw-bold text-primary">
+        🏆 Trending Books
+    </h5>
+
+    <div id="trendingBooks">
+        <span class="text-muted">Loading...</span>
+    </div>
+</div>
                     <!-- Recommendation Grid -->
                     <div class="row g-3 mt-2" id="aiRecommendationsGrid">
                         <div class="col-12 spinner-loading">
@@ -292,19 +325,19 @@
             if (!student) return;
             const profileAvatar = document.getElementById('profileAvatar');
 
-if (student.gender === 'Female') {
-    profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
-    profileAvatar.classList.remove('bg-primary');
-    profileAvatar.classList.add('bg-danger');
-}
-else if (student.gender === 'Male') {
-    profileAvatar.innerHTML = '<i class="fa-solid fa-user-tie"></i>';
-    profileAvatar.classList.remove('bg-danger');
-    profileAvatar.classList.add('bg-primary');
-}
-else {
-    profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
-}
+            if (student.gender === 'Female') {
+                 profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+                  profileAvatar.classList.remove('bg-primary');
+                  profileAvatar.classList.add('bg-danger');
+         }
+           else if (student.gender === 'Male') {
+                 profileAvatar.innerHTML = '<i class="fa-solid fa-user-tie"></i>';
+                 profileAvatar.classList.remove('bg-danger');
+                   profileAvatar.classList.add('bg-primary');
+        }
+           else {
+                profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+               }
          
             // Bind profile details
             document.getElementById('profileName').textContent = student.name;
@@ -314,6 +347,7 @@ else {
             loadStudentData();
             loadBooksCatalog();
             loadAIRecommendations(); // Load Google Books AI Recs
+            loadTrendingBooks();
 
             document.getElementById('catalogSearchInput').addEventListener('input', loadBooksCatalog);
             document.getElementById('deptFilter').addEventListener('change', loadBooksCatalog);
@@ -443,6 +477,26 @@ else {
         }
 
         // ===== AI Recommendations with Google Books =====
+        document.getElementById('studyAnswerText').innerHTML =
+    question + "<br><br><b>AI will generate detailed explanation here.</b>";
+        function askStudyAssistant() {
+
+    const question = document.getElementById('studyQuestion').value;
+
+    if (!question) {
+        showNotification("Please enter a question", "warning");
+        return;
+    }
+
+    const answerBox = document.getElementById('studyAnswer');
+
+    answerBox.classList.remove('d-none');
+
+    answerBox.innerHTML =
+        "🤖 AI Answer:<br><br>" +
+        question +
+        "<br><br><b>Note:</b> This can be connected with Gemini API for real AI responses.";
+        }
         async function loadAIRecommendations() {
             if (!window.aiEngine) return;
 
@@ -477,13 +531,30 @@ else {
                                 </div>
                                 <div class="p-3 d-flex flex-column flex-grow-1">
                                     ${isGoogleBook ? '<span class="google-badge mb-1 align-self-start"><i class="fa-brands fa-google me-1"></i>Google Books</span>' : ''}
-                                    <h6 class="fw-bold text-primary mb-1 text-truncate" style="font-size:0.85rem;" title="${book.title}">${book.title}</h6>
+                                   <div class="d-flex justify-content-between align-items-start mb-1">
+
+                                   <h6 class="fw-bold text-primary mb-0 text-truncate"
+                                       style="font-size:0.85rem;"
+                                        title="${book.title}">
+                                         ${book.title}
+                                    </h6>
+
+                                    <span class="badge bg-success">
+                                         AI
+                                     </span>
+
+                                  </div>
                                     <small class="text-muted d-block text-truncate mb-1">${book.author}</small>
                                     ${stars ? `<div class="rating-stars mb-1">${stars} <small class="text-muted">(${book.rating})</small></div>` : ''}
                                     <small class="text-info fw-semibold d-block mb-2" style="font-size:0.7rem;">
                                         <i class="fa-solid fa-sparkles me-1"></i>${book.reason}
                                     </small>
                                     <div class="mt-auto d-flex gap-1">
+                                      <button class="btn btn-warning btn-sm rounded-pill flex-grow-1"
+                                             onclick="showAISummary('${book.title}')"
+                                              style="font-size:0.7rem;">
+                                                🤖 Summary
+                                        </button>
                                         ${isGoogleBook
                                             ? `<a href="${book.previewLink}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1" style="font-size:0.7rem;">
                                                 <i class="fa-brands fa-google me-1"></i>Preview
@@ -570,6 +641,33 @@ else {
                 </div>`;
             }
         }
+       function showAISummary(title) {
+
+             alert(
+        "🤖 AI Summary:\n\n" +
+        title +
+        " is an important academic book for engineering students. " +
+        "It covers core concepts and practical applications."
+    );
+}
+        
+        function loadTrendingBooks() {
+
+    const trending = window.aiEngine.getLocalTrending();
+
+    const container = document.getElementById('trendingBooks');
+
+    container.innerHTML = "";
+
+    trending.forEach(book => {
+        container.innerHTML += `
+            <div class="mb-2">
+                <strong>${book.title}</strong>
+                <span class="badge bg-warning text-dark ms-2">Popular</span>
+            </div>
+        `;
+    });
+}
 
         function quickSearch(query) {
             document.getElementById('googleSearchInput').value = query;
