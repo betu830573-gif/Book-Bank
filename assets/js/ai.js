@@ -1,175 +1,239 @@
-"use strict";
+/**
+ * AI-Based Book Recommendation Engine for Book Bank Management System
+ * Upgraded with Google Books API Integration
+ * Author: Vivek Sen
+ */
 
-// =====================
-// APIs
-// =====================
+// ===== GOOGLE BOOKS API =====
+const API_KEY = "AIzaSyBC4DiJJUsHQFBoiYLOTstcURkcnpf2LqY";
 const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
-const OPEN_LIBRARY_API = "https://openlibrary.org/search.json";
 
-// =====================
-// DEPARTMENTS
-// =====================
+// Department to Search Keywords Mapping for College Books
 const DEPT_KEYWORDS = {
-    "Computer Science": [
-        "data structures", "operating systems", "computer networks",
-        "database management", "machine learning"
+    'Computer Science': [
+        'data structures algorithms', 'operating systems', 'computer networks',
+        'database management systems', 'software engineering', 'artificial intelligence',
+        'machine learning', 'compiler design', 'computer organization'
     ],
-    "Mechanical Engineering": [
-        "thermodynamics", "fluid mechanics", "machine design"
+    'Mechanical Engineering': [
+        'fluid mechanics engineering', 'thermodynamics engineering', 'machine design',
+        'manufacturing technology', 'strength of materials', 'theory of machines',
+        'heat transfer engineering', 'engineering mechanics'
     ],
-    "Electrical Engineering": [
-        "electric circuits", "power systems", "digital electronics"
+    'Electrical Engineering': [
+        'electric circuits engineering', 'power systems engineering', 'control systems',
+        'electromagnetic theory', 'digital electronics', 'signals systems',
+        'electrical machines', 'power electronics'
     ],
-    "Civil Engineering": [
-        "structural analysis", "soil mechanics", "concrete technology"
+    'Civil Engineering': [
+        'structural analysis civil', 'soil mechanics geotechnical', 'concrete technology',
+        'surveying engineering', 'fluid mechanics civil', 'transportation engineering',
+        'environmental engineering', 'construction management'
     ]
 };
 
-// =====================
-// ENGINE CLASS
-// =====================
 class BookRecommendationEngine {
     constructor() {
-        this.cache = {};
+        this.googleBooksCache = {};
     }
 
-    // =====================
-    // GOOGLE BOOKS
-    // =====================
-    async fetchFromGoogleBooks(query, maxResults = 8) {
+    /**
+     * Fetch real college books from Google Books API based on department
+     * @param {string} department
+     * @param {number} maxResults
+     * @returns {Promise<Array>}
+     */
+    async fetchFromGoogleBooks(department, maxResults = 8) {
+        const keywords = DEPT_KEYWORDS[department] || ['engineering textbook'];
+
+        // Pick a random keyword for variety
+        const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
+        const cacheKey = department + '_' + randomKeyword;
+
+        // Use cache if available
+        if (this.googleBooksCache[cacheKey]) {
+            return this.googleBooksCache[cacheKey];
+        }
+
         try {
-            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(query)}&maxResults=${maxResults}`;
+            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(randomKeyword + ' textbook college')}&maxResults=${maxResults}&printType=books&langRestrict=en&orderBy=relevance&key=${API_KEY}`;
+             console.log("Request URL:", url);
 
-            const res = await fetch(url);
-            const data = await res.json();
+const response = await fetch(url);
 
-            if (!data.items || data.items.length === 0) return [];
+console.log("Status:", response.status);
+
+if (!response.ok) {
+    const errorText = await response.text();
+    console.error(errorText);
+    throw new Error(`HTTP Error: ${response.status}`);
+}
+
+const data = await response.json();
+console.log(data);
+            if (!data.items) return [];
+
+            const books = data.items.map(item => {
+                const info = item.volumeInfo;
+                return {
+                    isbn: item.id,
+                    title: info.title || 'Unknown Title',
+                    author: info.authors ? info.authors.join(', ') : 'Unknown Author',
+                    department: department,
+                    description: info.description ? info.description.substring(0, 150) + '...' : 'No description available.',
+                    cover_url: info.imageLinks ? info.imageLinks.thumbnail : 'https://via.placeholder.com/128x192/1d3557/ffffff?text=No+Cover',
+                    previewLink: info.previewLink || '#',
+                    publishedDate: info.publishedDate || 'N/A',
+                    pageCount: info.pageCount || 'N/A',
+                    rating: info.averageRating || null,
+                    available_quantity: 1,
+                    total_quantity: 1,
+                    source: 'google_books',
+                    reason: `Top ${department} college textbook`
+                };
+            });
+
+            this.googleBooksCache[cacheKey] = books;
+            return books;
+
+        } catch (error) {
+            console.error('Google Books API Error:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Search Google Books API by query
+     * @param {string} query
+     * @param {number} maxResults
+     * @returns {Promise<Array>}
+     */
+    async searchGoogleBooks(query, maxResults = 10) {
+        try {
+            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&printType=books&langRestrict=en&key=${API_KEY}`;
+             console.log("Request URL:", url);
+
+const response = await fetch(url);
+
+console.log("Status:", response.status);
+
+if (!response.ok) {
+    const errorText = await response.text();
+    console.error(errorText);
+    throw new Error(`HTTP Error: ${response.status}`);
+}
+
+const data = await response.json();
+console.log(data);
+
+            if (!data.items) return [];
 
             return data.items.map(item => {
                 const info = item.volumeInfo;
-
                 return {
                     isbn: item.id,
-                    title: info.title || "Unknown",
-                    author: info.authors?.join(", ") || "Unknown",
-                    department: info.categories?.[0] || "General",
-                    description: info.description?.slice(0, 150) || "",
-                    cover_url:
-                        info.imageLinks?.thumbnail ||
-                        "https://via.placeholder.com/150x200?text=No+Cover",
-                    previewLink: info.previewLink || "#",
-                    publishedDate: info.publishedDate || "N/A",
-                    pageCount: info.pageCount || "N/A",
-                    source: "google_books"
+                    title: info.title || 'Unknown Title',
+                    author: info.authors ? info.authors.join(', ') : 'Unknown Author',
+                    department: info.categories ? info.categories[0] : 'General',
+                    description: info.description ? info.description.substring(0, 200) + '...' : 'No description available.',
+                    cover_url: info.imageLinks ? info.imageLinks.thumbnail : 'https://via.placeholder.com/128x192/1d3557/ffffff?text=No+Cover',
+                    previewLink: info.previewLink || '#',
+                    publishedDate: info.publishedDate || 'N/A',
+                    pageCount: info.pageCount || 'N/A',
+                    rating: info.averageRating || null,
+                    available_quantity: 1,
+                    total_quantity: 1,
+                    source: 'google_books'
                 };
             });
-
-        } catch (err) {
-            console.error("Google Books Error:", err);
+        } catch (error) {
+            console.error('Google Books Search Error:', error);
             return [];
         }
     }
 
-    // =====================
-    // OPEN LIBRARY (BACKUP API)
-    // =====================
-    async fetchFromOpenLibrary(query, maxResults = 8) {
-        try {
-            const url = `${OPEN_LIBRARY_API}?q=${encodeURIComponent(query)}`;
-
-            const res = await fetch(url);
-            const data = await res.json();
-
-            if (!data.docs || data.docs.length === 0) return [];
-
-            return data.docs.slice(0, maxResults).map(item => {
-                return {
-                    isbn: item.key || "N/A",
-                    title: item.title || "Unknown",
-                    author: item.author_name?.join(", ") || "Unknown",
-                    department: item.subject?.[0] || "General",
-                    description: item.first_sentence?.[0] || "",
-                    cover_url: item.cover_i
-                        ? `https://covers.openlibrary.org/b/id/${item.cover_i}-M.jpg`
-                        : "https://via.placeholder.com/150x200?text=No+Cover",
-                    previewLink: `https://openlibrary.org${item.key}`,
-                    publishedDate: item.first_publish_year || "N/A",
-                    pageCount: "N/A",
-                    source: "open_library"
-                };
-            });
-
-        } catch (err) {
-            console.error("OpenLibrary Error:", err);
-            return [];
+    /**
+     * Get AI Recommendations for Student (Local DB + Google Books)
+     * @param {string} studentId
+     * @param {Function} callback - called with recommendations array
+     */
+    async recommendForStudent(studentId, callback) {
+        if (!window.db) {
+            console.error("DB Engine not loaded.");
+            if (callback) callback([]);
+            return;
         }
-    }
 
-    // =====================
-    // SMART HYBRID SEARCH
-    // =====================
-    async searchGoogleBooks(query, maxResults = 10) {
-        try {
-            let results = await this.fetchFromGoogleBooks(query, maxResults);
+        const students = window.db.getStudents();
+        const student = students.find(s => s.studentId === studentId);
 
-            // Fallback if empty
-            if (!results || results.length === 0) {
-                console.log("Google Books empty → switching to Open Library...");
-                results = await this.fetchFromOpenLibrary(query, maxResults);
+        const department = student ? student.department : 'Computer Science';
+        const allBooks = window.db.getBooks();
+        const circulations = window.db.getCirculation();
+        const studentHistory = student ? circulations.filter(c => c.studentId === studentId) : [];
+
+        // --- Local DB Recommendations (scored) ---
+        let localRecs = allBooks.map(book => {
+            let score = 0;
+            let reasons = [];
+
+            const activeRecord = studentHistory.find(c => c.isbn === book.isbn && c.status !== 'Returned');
+            if (activeRecord) return null;
+
+            if (book.department.toLowerCase() === department.toLowerCase()) {
+                score += 50;
+                reasons.push(`Aligned with your ${department} curriculum`);
             }
 
-            return results;
+            const pastDeptBorrows = studentHistory.filter(c => {
+                const b = allBooks.find(bk => bk.isbn === c.isbn);
+                return b && b.department === book.department;
+            }).length;
+            if (pastDeptBorrows > 0) {
+                score += (pastDeptBorrows * 10);
+                reasons.push(`Matches your active study topics`);
+            }
 
-        } catch (err) {
-            console.error("Search Error:", err);
-            return [];
-        }
+            const globalCheckoutCount = circulations.filter(c => c.isbn === book.isbn).length;
+            if (globalCheckoutCount > 0) {
+                score += (globalCheckoutCount * 5);
+                reasons.push(`Highly demanded by your peers`);
+            }
+
+            if (book.available_quantity > 0) score += 15;
+            else score -= 30;
+
+            return { ...book, score, reason: reasons.length > 0 ? reasons[0] : "Recommended course material", source: 'local' };
+        }).filter(b => b !== null).sort((a, b) => b.score - a.score).slice(0, 2);
+
+        // --- Google Books Recommendations ---
+        const googleRecs = await this.fetchFromGoogleBooks(department, 6);
+
+        // Combine: Local (top 2) + Google Books (top 6)
+        const combined = [...localRecs, ...googleRecs];
+
+        if (callback) callback(combined);
+        return combined;
     }
 
-    // =====================
-    // DEPARTMENT RECOMMENDATION
-    // =====================
-    async fetchFromGoogleBooksByDept(dept, maxResults = 8) {
-        const keywords = DEPT_KEYWORDS[dept] || ["engineering books"];
-        const keyword = keywords[Math.floor(Math.random() * keywords.length)];
-
-        return await this.searchGoogleBooks(keyword, maxResults);
-    }
-
-    // =====================
-    // TRENDING
-    // =====================
+    /**
+     * Fallback general trending from local DB
+     */
     getLocalTrending() {
-        try {
-            if (!window.db) return [];
-
-            const books = window.db.getBooks?.() || [];
-            const circulations = window.db.getCirculation?.() || [];
-
-            return books
-                .map(book => {
-                    const count = circulations.filter(c => c.isbn === book.isbn).length;
-
-                    return {
-                        ...book,
-                        score: count * 10,
-                        source: "local"
-                    };
-                })
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 5);
-
-        } catch (err) {
-            console.error("Trending Error:", err);
-            return [];
-        }
+        if (!window.db) return [];
+        const allBooks = window.db.getBooks();
+        const circulations = window.db.getCirculation();
+        return allBooks.map(book => {
+            const checkoutCount = circulations.filter(c => c.isbn === book.isbn).length;
+            return {
+                ...book,
+                score: checkoutCount * 10,
+                reason: checkoutCount > 0 ? "Trending across branches" : "Essential library textbook",
+                source: 'local'
+            };
+        }).sort((a, b) => b.score - a.score).slice(0, 4);
     }
 }
 
-// =====================
-// SAFE INIT (NO CRASH)
-// =====================
-window.addEventListener("DOMContentLoaded", () => {
-    window.aiEngine = new BookRecommendationEngine();
-    console.log("AI Engine Loaded (Google + OpenLibrary)");
-});
+// Global Single Instance
+window.aiEngine = new BookRecommendationEngine();
