@@ -313,6 +313,16 @@
     <script src="assets/js/ai.js"></script>
     <script src="assets/js/app.js"></script>
 
+    <script>
+window.addEventListener("load", () => {
+    if (!window.aiEngine) {
+        console.error("AI Engine not ready");
+    } else {
+        console.log("AI Engine Ready");
+    }
+});
+</script>
+
 
     <!-- Student Dashboard Controller Logic -->
   <script>
