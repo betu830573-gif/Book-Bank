@@ -209,24 +209,29 @@ class BookRecommendationEngine {
     // =====================
     // TRENDING BOOKS
     // =====================
-    getLocalTrending() {
+  getLocalTrending() {
+    try {
         if (!window.db) return [];
 
-        const books = window.db.getBooks();
-        const circulations = window.db.getCirculation();
+        const allBooks = window.db.getBooks?.() || [];
+        const circulations = window.db.getCirculation?.() || [];
 
-        return books.map(book => {
-            const count = circulations.filter(c => c.isbn === book.isbn).length;
+        return allBooks.map(book => {
+            const checkoutCount = circulations.filter(c => c.isbn === book.isbn).length;
 
             return {
                 ...book,
-                score: count,
-                source: "local",
-                reason: "Trending in college"
+                score: checkoutCount * 10,
+                reason: checkoutCount > 0 ? "Trending across branches" : "Essential library textbook",
+                source: 'local'
             };
         })
         .sort((a, b) => b.score - a.score)
         .slice(0, 5);
+
+    } catch (err) {
+        console.error("Trending Error:", err);
+        return [];
     }
 }
 
