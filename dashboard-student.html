@@ -194,34 +194,11 @@
                 </div>
 
                 <!-- ===== AI RECOMMENDATIONS SECTION ===== -->
-                <div class="alert alert-success mt-3 small">
-🤖 AI is analyzing your study pattern...
-</div>
-                <div class="glass-card p-4 mb-4">
-    <h5 class="fw-bold text-primary">
-        <i class="fa-solid fa-robot me-2"></i>
-        AI Study Assistant
-    </h5>
-
-    <textarea id="studyQuestion" class="form-control mb-3"
-        rows="3"
-        placeholder="Example: Explain DBMS Normalization"></textarea>
-
-    <button class="btn btn-primary-custom rounded-pill"
-        onclick="askStudyAssistant()">
-        🤖 Ask AI
-    </button>
-
-                 <div id="studyAnswer" class="alert alert-info mt-3 d-none">
-    <strong>🤖 AI Response:</strong>
-    <div id="studyAnswerText"></div>
-</div>
-</div>
                 <div class="ai-sparkle-card mb-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h5 class="fw-bold text-primary mb-1">
-                                <i class="fa-solid fa-wand-magic-sparkles me-2 text-info"></i>AI Powered Smart Recommendations (Gemini + Google Books API)
+                                <i class="fa-solid fa-wand-magic-sparkles me-2 text-info"></i>AI + Google Books Recommendations
                             </h5>
                             <p class="text-muted small mb-0">
                                 Smart textbook suggestions powered by your branch + Google Books real-time data + peer circulation trends.
@@ -234,16 +211,6 @@
                             <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-semibold">AI Tuned</span>
                         </div>
                     </div>
-
-                    <div class="glass-card p-4 mb-4">
-    <h5 class="fw-bold text-primary">
-        🏆 Trending Books
-    </h5>
-
-    <div id="trendingBooks">
-        <span class="text-muted">Loading...</span>
-    </div>
-</div>
                     <!-- Recommendation Grid -->
                     <div class="row g-3 mt-2" id="aiRecommendationsGrid">
                         <div class="col-12 spinner-loading">
@@ -313,347 +280,331 @@
     <script src="assets/js/ai.js"></script>
     <script src="assets/js/app.js"></script>
 
-    <script>
-window.addEventListener("load", () => {
-    if (!window.aiEngine) {
-        console.error("AI Engine not ready");
-    } else {
-        console.log("AI Engine Ready");
-    }
-});
-</script>
-
 
     <!-- Student Dashboard Controller Logic -->
-  <script>
-"use strict";
+    <script>
+       guardPage('student');
 
-/* =========================
-   SAFE INIT GUARD
-========================= */
-function safeInit(fn) {
-    try {
-        fn();
-    } catch (err) {
-        console.error("Init Error:", err);
-    }
+        let student = null;
+
+        function initStudentDashboard() {
+            student = window.db.getCurrentUser();
+            if (!student) return;
+            const profileAvatar = document.getElementById('profileAvatar');
+
+if (student.gender === 'Female') {
+    profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+    profileAvatar.classList.remove('bg-primary');
+    profileAvatar.classList.add('bg-danger');
 }
-
-guardPage('student');
-
-let student = null;
-
-/* =========================
-   INIT DASHBOARD
-========================= */
-function initStudentDashboard() {
-    student = window.db?.getCurrentUser();
-
-    if (!student) {
-        console.error("No student found");
-        return;
-    }
-
-    const profileAvatar = document.getElementById('profileAvatar');
-
-    // Gender Avatar Fix
-    if (student.gender === 'Female') {
-        profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
-        profileAvatar.className = profileAvatar.className.replace('bg-primary', 'bg-danger');
-    } 
-    else if (student.gender === 'Male') {
-        profileAvatar.innerHTML = '<i class="fa-solid fa-user-tie"></i>';
-        profileAvatar.className = profileAvatar.className.replace('bg-danger', 'bg-primary');
-    } 
-    else {
-        profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
-    }
-
-    // Profile Bind
-    document.getElementById('profileName').textContent = student.name || "Unknown";
-    document.getElementById('profileDept').textContent = student.department || "N/A";
-    document.getElementById('profileId').textContent = student.studentId || "N/A";
-
-    loadStudentData();
-    loadBooksCatalog();
-    loadAIRecommendations();
-    loadTrendingBooks();
-
-    // Events
-    document.getElementById('catalogSearchInput')
-        ?.addEventListener('input', loadBooksCatalog);
-
-    document.getElementById('deptFilter')
-        ?.addEventListener('change', loadBooksCatalog);
-
-    document.getElementById('googleSearchInput')
-        ?.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') searchGoogleBooks();
-        });
+else if (student.gender === 'Male') {
+    profileAvatar.innerHTML = '<i class="fa-solid fa-user-tie"></i>';
+    profileAvatar.classList.remove('bg-danger');
+    profileAvatar.classList.add('bg-primary');
 }
-
-/* =========================
-   STUDENT DATA
-========================= */
-function loadStudentData() {
-    if (!window.db) return;
-
-    const students = window.db.getStudents();
-    const currentStu = students.find(s => s.studentId === student.studentId);
-
-    if (currentStu) student = currentStu;
-
-    const circulations = window.db.getCirculation() || [];
-    const studentLoans = circulations.filter(c => c.studentId === student.studentId);
-
-    const activeLoans = studentLoans.filter(c => c.status === 'Issued');
-
-    const balance = student.balanceDue || 0;
-
-    document.getElementById('statBooksIssued').textContent = activeLoans.length;
-    document.getElementById('statFines').textContent = `₹${balance.toFixed(2)}`;
-    document.getElementById('fineBalance').textContent = `₹${balance.toFixed(2)}`;
-    document.getElementById('payFineBtn').disabled = balance <= 0;
-
-    // Loan table
-    const tableBody = document.getElementById('loanHistoryTable');
-    tableBody.innerHTML = '';
-
-    if (!studentLoans.length) {
-        tableBody.innerHTML = `
-        <tr>
-            <td colspan="6" class="text-center text-muted py-4">
-                No loan records found.
-            </td>
-        </tr>`;
-        return;
-    }
-
-    const books = window.db.getBooks();
-
-    studentLoans.forEach(loan => {
-        const book = books.find(b => b.isbn === loan.isbn) || {
-            title: 'Unknown Book',
-            author: 'Unknown'
-        };
-
-        let badgeClass = 'bg-secondary';
-        if (loan.status === 'Pending') badgeClass = 'bg-warning text-dark';
-        if (loan.status === 'Issued') badgeClass = 'bg-success';
-        if (loan.status === 'Returned') badgeClass = 'bg-info text-dark';
-
-        let returnInfo = '—';
-        if (loan.status === 'Issued') returnInfo = `Due: ${loan.dueDate}`;
-        if (loan.status === 'Returned') returnInfo = `Returned: ${loan.returnDate}`;
-
-        tableBody.innerHTML += `
-        <tr>
-            <td><code>${loan.isbn}</code></td>
-            <td>
-                <div class="fw-bold text-primary">${book.title}</div>
-                <small>${book.author}</small>
-            </td>
-            <td>${loan.issueDate || '-'}</td>
-            <td>${returnInfo}</td>
-            <td class="${loan.fineApplied > 0 ? 'text-danger' : 'text-success'}">
-                ₹${loan.fineApplied?.toFixed(2) || '0.00'}
-            </td>
-            <td><span class="badge ${badgeClass}">${loan.status}</span></td>
-        </tr>`;
-    });
+else {
+    profileAvatar.innerHTML = '<i class="fa-solid fa-user"></i>';
 }
+         
+            // Bind profile details
+            document.getElementById('profileName').textContent = student.name;
+            document.getElementById('profileDept').textContent = student.department;
+            document.getElementById('profileId').textContent = student.studentId;
 
-/* =========================
-   AI STUDY ASSISTANT FIX
-========================= */
-function askStudyAssistant() {
-    const question = document.getElementById('studyQuestion').value.trim();
+            loadStudentData();
+            loadBooksCatalog();
+            loadAIRecommendations(); // Load Google Books AI Recs
 
-    if (!question) {
-        showNotification("Please enter a question", "warning");
-        return;
-    }
+            document.getElementById('catalogSearchInput').addEventListener('input', loadBooksCatalog);
+            document.getElementById('deptFilter').addEventListener('change', loadBooksCatalog);
 
-    const box = document.getElementById('studyAnswer');
-    box.classList.remove('d-none');
-
-    document.getElementById('studyAnswerText').innerHTML = `
-        <b>Question:</b> ${question}<br><br>
-        🤖 AI is working on this... (Connect Gemini API here)
-    `;
-}
-
-/* =========================
-   BOOK CATALOG
-========================= */
-function loadBooksCatalog() {
-    if (!window.db) return;
-
-    const search = (document.getElementById('catalogSearchInput')?.value || "").toLowerCase();
-    const dept = document.getElementById('deptFilter')?.value || "all";
-
-    const books = window.db.getBooks();
-    const grid = document.getElementById('catalogBookGrid');
-
-    grid.innerHTML = '';
-
-    const filtered = books.filter(b =>
-        (dept === 'all' || b.department === dept) &&
-        (b.title.toLowerCase().includes(search) ||
-         b.author.toLowerCase().includes(search) ||
-         b.isbn.includes(search))
-    );
-
-    if (!filtered.length) {
-        grid.innerHTML = `<div class="text-center text-muted py-4">No books found</div>`;
-        return;
-    }
-
-    filtered.forEach(book => {
-        const available = book.available_quantity > 0;
-
-        grid.innerHTML += `
-        <div class="col-md-4">
-            <div class="card p-3">
-                <img src="${book.cover_url}" style="height:180px; object-fit:cover"
-                     onerror="this.src='https://via.placeholder.com/150'">
-
-                <h6 class="mt-2">${book.title}</h6>
-                <small>${book.author}</small>
-
-                <div class="mt-2">
-                    <small>Stock: ${book.available_quantity}/${book.total_quantity}</small>
-                </div>
-
-                <button class="btn btn-sm mt-2 ${available ? 'btn-primary' : 'btn-secondary'}"
-                    ${available ? `onclick="requestBook('${book.isbn}')"` : 'disabled'}>
-                    ${available ? 'Request' : 'Out of Stock'}
-                </button>
-            </div>
-        </div>`;
-    });
-}
-
-/* =========================
-   GOOGLE BOOKS SEARCH SAFE
-========================= */
-async function searchGoogleBooks() {
-    const query = document.getElementById('googleSearchInput').value.trim();
-
-    if (!query) return showNotification("Enter search text", "warning");
-
-    const grid = document.getElementById('googleBooksGrid');
-    document.getElementById('googleSearchResults').classList.remove('d-none');
-
-    grid.innerHTML = `<div class="text-center p-3">Searching...</div>`;
-
-    try {
-       if (!window.aiEngine || !window.aiEngine.searchGoogleBooks) {
-    throw new Error("AI Engine not loaded");
-}
-
-        const results = await window.aiEngine.searchGoogleBooks(query, 10);
-
-        if (!results.length) {
-            grid.innerHTML = `<div class="text-center">No results found</div>`;
-            return;
+            // Google Books search on Enter key
+            document.getElementById('googleSearchInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') searchGoogleBooks();
+            });
         }
 
-        grid.innerHTML = results.map(b => `
-            <div class="col-md-4">
-                <div class="card p-2">
-                    <img src="${b.cover_url}" style="height:160px; object-fit:cover"
-                         onerror="this.src='https://via.placeholder.com/150'">
+        function loadStudentData() {
+            const students = window.db.getStudents();
+            const currentStu = students.find(s => s.studentId === student.studentId);
+            if (currentStu) student = currentStu;
 
-                    <h6>${b.title}</h6>
-                    <small>${b.author}</small>
+            const circulations = window.db.getCirculation();
+            const studentLoans = circulations.filter(c => c.studentId === student.studentId);
 
-                    <a class="btn btn-sm btn-primary mt-2" target="_blank"
-                       href="${b.previewLink}">
-                       Preview
-                    </a>
-                </div>
-            </div>
-        `).join('');
+            const activeLoans = studentLoans.filter(c => c.status === 'Issued');
+            document.getElementById('statBooksIssued').textContent = activeLoans.length;
+            document.getElementById('statFines').textContent = `₹${student.balanceDue.toFixed(2)}`;
+            document.getElementById('fineBalance').textContent = `₹${student.balanceDue.toFixed(2)}`;
+            document.getElementById('payFineBtn').disabled = student.balanceDue <= 0;
 
-    } catch (e) {
-        console.error(e);
-        grid.innerHTML = `<div class="text-danger text-center">
-            Failed to load Google Books
-        </div>`;
-    }
-}
+            const tableBody = document.getElementById('loanHistoryTable');
+            tableBody.innerHTML = '';
 
-/* =========================
-   TRENDING BOOKS SAFE
-========================= */
-function loadTrendingBooks() {
-    const container = document.getElementById('trendingBooks');
+            if (studentLoans.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">
+                    <i class="fa-solid fa-inbox fa-2x mb-2 d-block text-secondary"></i>No loan records found.
+                </td></tr>`;
+            } else {
+                studentLoans.forEach(loan => {
+                    const books = window.db.getBooks();
+                    const book = books.find(b => b.isbn === loan.isbn) || { title: 'Unknown Textbook', author: 'Unknown Author' };
 
-    try {
-        if (!window.aiEngine || !window.aiEngine.getLocalTrending) {
-            container.innerHTML = `<span class="text-danger">AI Engine not loaded</span>`;
-            return;
+                    let badgeClass = 'bg-secondary';
+                    if (loan.status === 'Pending') badgeClass = 'bg-warning text-dark';
+                    else if (loan.status === 'Issued') badgeClass = 'bg-success';
+                    else if (loan.status === 'Returned') badgeClass = 'bg-info text-dark';
+
+                    let returnDueCol = '';
+                    if (loan.status === 'Pending') returnDueCol = '<span class="text-muted">Awaiting Approval</span>';
+                    else if (loan.status === 'Issued') returnDueCol = `Due: <strong class="text-danger">${loan.dueDate}</strong>`;
+                    else if (loan.status === 'Returned') returnDueCol = `Returned: <strong>${loan.returnDate}</strong>`;
+
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td><code>${loan.isbn.substring(0,12)}</code></td>
+                            <td>
+                                <div class="fw-bold text-primary">${book.title}</div>
+                                <small class="text-muted">${book.author}</small>
+                            </td>
+                            <td>${loan.issueDate || '—'}</td>
+                            <td>${returnDueCol}</td>
+                            <td><strong class="${loan.fineApplied > 0 ? 'text-danger' : 'text-success'}">₹${loan.fineApplied.toFixed(2)}</strong></td>
+                            <td><span class="badge ${badgeClass}">${loan.status}</span></td>
+                        </tr>
+                    `;
+                });
+            }
         }
 
-        const trending = window.aiEngine.getLocalTrending();
+        function loadBooksCatalog() {
+            const searchQuery = document.getElementById('catalogSearchInput').value.toLowerCase();
+            const deptFilter = document.getElementById('deptFilter').value;
 
-        if (!trending || trending.length === 0) {
-            container.innerHTML = `<span class="text-muted">No trending books yet</span>`;
-            return;
+            const books = window.db.getBooks();
+            const catalogGrid = document.getElementById('catalogBookGrid');
+            catalogGrid.innerHTML = '';
+
+            const filteredBooks = books.filter(book => {
+                const matchesSearch = book.title.toLowerCase().includes(searchQuery) ||
+                    book.author.toLowerCase().includes(searchQuery) ||
+                    book.isbn.includes(searchQuery);
+                const matchesDept = (deptFilter === 'all' || book.department === deptFilter);
+                return matchesSearch && matchesDept;
+            });
+
+            if (filteredBooks.length === 0) {
+                catalogGrid.innerHTML = `<div class="col-12 text-center text-muted py-5">
+                    <i class="fa-solid fa-inbox fa-3x mb-3 text-secondary"></i><br>No textbooks match your filters.
+                </div>`;
+                return;
+            }
+
+            filteredBooks.forEach(book => {
+                let badgeTheme = 'badge-cs';
+                if (book.department.includes('Mechanical')) badgeTheme = 'badge-me';
+                else if (book.department.includes('Electrical')) badgeTheme = 'badge-ee';
+                else if (book.department.includes('Civil')) badgeTheme = 'badge-ce';
+
+                const circulations = window.db.getCirculation();
+                const alreadyRequested = circulations.some(c =>
+                    c.studentId === student.studentId && c.isbn === book.isbn && c.status !== 'Returned');
+
+                const btnHtml = alreadyRequested
+                    ? `<button class="btn btn-secondary w-100 btn-sm rounded-pill mt-3" disabled>
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Active Record</button>`
+                    : book.available_quantity > 0
+                        ? `<button class="btn btn-primary-custom w-100 btn-sm rounded-pill mt-3" onclick="requestBook('${book.isbn}')">
+                            <i class="fa-solid fa-book-bookmark me-1"></i> Request Issue</button>`
+                        : `<button class="btn btn-outline-danger w-100 btn-sm rounded-pill mt-3" disabled>
+                            <i class="fa-solid fa-ban me-1"></i> Out of Stock</button>`;
+
+                catalogGrid.innerHTML += `
+                    <div class="col-md-4">
+                        <div class="card book-card border-0 h-100 p-3">
+                            <div class="book-cover-wrapper mb-3 rounded-3">
+                                <img src="${book.cover_url}" class="book-cover" alt="Cover"
+                                    onerror="this.src='https://via.placeholder.com/150x200/1d3557/fff?text=No+Cover'">
+                            </div>
+                            <span class="badge ${badgeTheme} align-self-start mb-2">${book.department}</span>
+                            <h6 class="fw-bold text-primary mb-1 text-truncate" title="${book.title}">${book.title}</h6>
+                            <p class="text-muted small mb-2 text-truncate">${book.author}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <small class="text-muted">Stock: <strong>${book.available_quantity}/${book.total_quantity}</strong></small>
+                                <span class="badge ${book.available_quantity > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}">
+                                    ${book.available_quantity > 0 ? 'Available' : 'Unavailable'}
+                                </span>
+                            </div>
+                            ${btnHtml}
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        container.innerHTML = trending.map(b => `
-            <div class="d-flex justify-content-between border-bottom py-1">
-                <span>${b.title}</span>
-                <span class="badge bg-warning">🔥</span>
-            </div>
-        `).join('');
+        // ===== AI Recommendations with Google Books =====
+        async function loadAIRecommendations() {
+            if (!window.aiEngine) return;
 
-    } catch (err) {
-        console.error(err);
-        container.innerHTML = `<span class="text-danger">Failed to load trending</span>`;
-    }
-}
-/* =========================
-   BOOK REQUEST
-========================= */
-function requestBook(isbn) {
-    const res = window.db.requestIssue(student.studentId, isbn);
+            const container = document.getElementById('aiRecommendationsGrid');
+            container.innerHTML = `<div class="col-12 spinner-loading">
+                <div class="spinner-border text-primary me-2" role="status"></div>
+                <span class="text-muted">Fetching from Google Books API...</span>
+            </div>`;
 
-    if (res.success) {
-        showNotification(res.message, "success");
-        loadStudentData();
-        loadBooksCatalog();
-    } else {
-        showNotification(res.message, "danger");
-    }
-}
+            try {
+                const recommendations = await window.aiEngine.recommendForStudent(student.studentId);
+                container.innerHTML = '';
 
-/* =========================
-   FINE PAYMENT
-========================= */
-function triggerFinePayment() {
-    const balance = student.balanceDue || 0;
+                if (!recommendations || recommendations.length === 0) {
+                    container.innerHTML = `<div class="col-12 text-center text-muted small py-3">
+                        No recommendations available at this time.
+                    </div>`;
+                    return;
+                }
 
-    if (balance <= 0) return;
+                recommendations.forEach(book => {
+                    const isGoogleBook = book.source === 'google_books';
+                    const stars = book.rating ? '★'.repeat(Math.round(book.rating)) + '☆'.repeat(5 - Math.round(book.rating)) : '';
 
-    const res = window.db.payFine(student.studentId, balance);
+                    container.innerHTML += `
+                        <div class="col-md-3 col-6">
+                            <div class="gbook-card p-0 d-flex flex-column">
+                                <div style="height:140px; overflow:hidden; background:#eef1f6; border-radius: 12px 12px 0 0;">
+                                    <img src="${book.cover_url}" class="gbook-cover"
+                                        onerror="this.src='https://via.placeholder.com/128x180/1d3557/fff?text=Book'"
+                                        alt="${book.title}">
+                                </div>
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    ${isGoogleBook ? '<span class="google-badge mb-1 align-self-start"><i class="fa-brands fa-google me-1"></i>Google Books</span>' : ''}
+                                    <h6 class="fw-bold text-primary mb-1 text-truncate" style="font-size:0.85rem;" title="${book.title}">${book.title}</h6>
+                                    <small class="text-muted d-block text-truncate mb-1">${book.author}</small>
+                                    ${stars ? `<div class="rating-stars mb-1">${stars} <small class="text-muted">(${book.rating})</small></div>` : ''}
+                                    <small class="text-info fw-semibold d-block mb-2" style="font-size:0.7rem;">
+                                        <i class="fa-solid fa-sparkles me-1"></i>${book.reason}
+                                    </small>
+                                    <div class="mt-auto d-flex gap-1">
+                                        ${isGoogleBook
+                                            ? `<a href="${book.previewLink}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1" style="font-size:0.7rem;">
+                                                <i class="fa-brands fa-google me-1"></i>Preview
+                                               </a>`
+                                            : `<button class="btn btn-primary-custom btn-sm rounded-pill flex-grow-1" onclick="requestBook('${book.isbn}')" style="font-size:0.7rem;">
+                                                Request
+                                               </button>`
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
 
-    if (res.success) {
-        showNotification("Fine cleared!", "success");
-        loadStudentData();
-    } else {
-        showNotification(res.message, "danger");
-    }
-}
+            } catch (err) {
+                container.innerHTML = `<div class="col-12 text-center text-muted small py-3">
+                    <i class="fa-solid fa-wifi me-1"></i> Unable to fetch Google Books. Check internet connection.
+                </div>`;
+            }
+        }
 
-/* =========================
-   SAFE INIT CALL
-========================= */
-window.addEventListener('DOMContentLoaded', () => {
-    safeInit(initStudentDashboard);
-});
-</script>
+        // ===== Google Books Search =====
+        async function searchGoogleBooks() {
+            const query = document.getElementById('googleSearchInput').value.trim();
+            if (!query) {
+                showNotification("Please enter a search query!", "warning");
+                return;
+            }
+
+            const resultsSection = document.getElementById('googleSearchResults');
+            const grid = document.getElementById('googleBooksGrid');
+            resultsSection.classList.remove('d-none');
+            grid.innerHTML = `<div class="col-12 spinner-loading">
+                <div class="spinner-border text-primary me-2" role="status"></div>
+                <span class="text-muted">Searching Google Books for "${query}"...</span>
+            </div>`;
+
+            try {
+                const results = await window.aiEngine.searchGoogleBooks(query, 10);
+                grid.innerHTML = '';
+                document.getElementById('searchResultCount').textContent = results.length;
+
+                if (results.length === 0) {
+                    grid.innerHTML = `<div class="col-12 text-center text-muted py-4">
+                        <i class="fa-solid fa-search fa-2x mb-2 d-block"></i>No results found for "${query}".
+                    </div>`;
+                    return;
+                }
+
+                results.forEach(book => {
+                    const stars = book.rating ? '★'.repeat(Math.round(book.rating)) + '☆'.repeat(5 - Math.round(book.rating)) : '';
+                    grid.innerHTML += `
+                        <div class="col-md-4 col-6">
+                            <div class="gbook-card p-0 d-flex flex-column">
+                                <div style="height:150px; overflow:hidden; background:#eef1f6; border-radius: 12px 12px 0 0;">
+                                    <img src="${book.cover_url}" class="gbook-cover"
+                                        onerror="this.src='https://via.placeholder.com/128x150/1d3557/fff?text=Book'"
+                                        alt="${book.title}">
+                                </div>
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    <span class="google-badge mb-1 align-self-start"><i class="fa-brands fa-google me-1"></i>Google Books</span>
+                                    <h6 class="fw-bold text-primary mb-1" style="font-size:0.85rem;" title="${book.title}">${book.title}</h6>
+                                    <small class="text-muted d-block text-truncate mb-1">${book.author}</small>
+                                    ${stars ? `<div class="rating-stars mb-1">${stars} <small>(${book.rating})</small></div>` : ''}
+                                    ${book.publishedDate !== 'N/A' ? `<small class="text-muted mb-1">Published: ${book.publishedDate}</small>` : ''}
+                                    ${book.pageCount !== 'N/A' ? `<small class="text-muted mb-2">${book.pageCount} pages</small>` : ''}
+                                    <div class="mt-auto">
+                                        <a href="${book.previewLink}" target="_blank"
+                                            class="btn btn-primary-custom btn-sm rounded-pill w-100" style="font-size:0.75rem;">
+                                            <i class="fa-brands fa-google me-1"></i> Read Preview
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            } catch (err) {
+                grid.innerHTML = `<div class="col-12 text-center text-danger py-4">
+                    <i class="fa-solid fa-circle-exclamation fa-2x mb-2 d-block"></i>
+                    Failed to connect to Google Books API. Please check your internet.
+                </div>`;
+            }
+        }
+
+        function quickSearch(query) {
+            document.getElementById('googleSearchInput').value = query;
+            searchGoogleBooks();
+        }
+
+        function clearSearch() {
+            document.getElementById('googleSearchResults').classList.add('d-none');
+            document.getElementById('googleSearchInput').value = '';
+            document.getElementById('googleBooksGrid').innerHTML = '';
+        }
+
+        function requestBook(isbn) {
+            const res = window.db.requestIssue(student.studentId, isbn);
+            if (res.success) {
+                showNotification(res.message, "success");
+                loadStudentData();
+                loadBooksCatalog();
+            } else {
+                showNotification(res.message, "danger");
+            }
+        }
+
+        function triggerFinePayment() {
+            if (student.balanceDue <= 0) return;
+            const res = window.db.payFine(student.studentId, student.balanceDue);
+            if (res.success) {
+                showNotification("Fines paid successfully! Balance clear.", "success");
+                loadStudentData();
+            } else {
+                showNotification(res.message, "danger");
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initStudentDashboard);
+    </script>
 </body>
 </html>
