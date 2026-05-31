@@ -580,20 +580,31 @@ async function searchGoogleBooks() {
 function loadTrendingBooks() {
     const container = document.getElementById('trendingBooks');
 
-    if (!window.aiEngine?.getLocalTrending) {
-        container.innerHTML = "Trending unavailable";
-        return;
+    try {
+        if (!window.aiEngine || !window.aiEngine.getLocalTrending) {
+            container.innerHTML = `<span class="text-danger">AI Engine not loaded</span>`;
+            return;
+        }
+
+        const trending = window.aiEngine.getLocalTrending();
+
+        if (!trending || trending.length === 0) {
+            container.innerHTML = `<span class="text-muted">No trending books yet</span>`;
+            return;
+        }
+
+        container.innerHTML = trending.map(b => `
+            <div class="d-flex justify-content-between border-bottom py-1">
+                <span>${b.title}</span>
+                <span class="badge bg-warning">🔥</span>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = `<span class="text-danger">Failed to load trending</span>`;
     }
-
-    const trending = window.aiEngine.getLocalTrending();
-
-    container.innerHTML = trending.map(b => `
-        <div>
-            <b>${b.title}</b> <span class="badge bg-warning">Hot</span>
-        </div>
-    `).join('');
 }
-
 /* =========================
    BOOK REQUEST
 ========================= */
