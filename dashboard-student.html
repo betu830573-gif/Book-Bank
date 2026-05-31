@@ -538,9 +538,9 @@ async function searchGoogleBooks() {
     grid.innerHTML = `<div class="text-center p-3">Searching...</div>`;
 
     try {
-        if (!window.aiEngine?.searchGoogleBooks) {
-            throw new Error("AI Engine not loaded");
-        }
+       if (!window.aiEngine || !window.aiEngine.searchGoogleBooks) {
+    throw new Error("AI Engine not loaded");
+}
 
         const results = await window.aiEngine.searchGoogleBooks(query, 10);
 
