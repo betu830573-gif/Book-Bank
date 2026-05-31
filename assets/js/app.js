@@ -108,4 +108,4 @@ function guardPage(requiredRole) {
 // Initialize navbar sync on load
 document.addEventListener('DOMContentLoaded', () => {
     syncNavBar();
-}); improve met karo 
+});
