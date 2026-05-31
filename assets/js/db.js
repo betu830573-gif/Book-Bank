@@ -332,4 +332,4 @@ class BookBankDB {
     }
 }
 
-window.db = new BookBankDB();
+window.db = new BookBankDB(); 
