@@ -236,4 +236,4 @@ console.log(data);
 }
 
 // Global Single Instance
-window.aiEngine = new BookRecommendationEngine(); improvment delte nhoi
+window.aiEngine = new BookRecommendationEngine();
