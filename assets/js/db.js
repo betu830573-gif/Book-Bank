@@ -1,6 +1,14 @@
 /**
  * Relational localStorage Database for Book Bank System (FINAL FIXED VERSION)
  */
+ import {
+  addDoc,
+  collection
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+import { firestore } from "./firebase.js";
+
+
 
 const DEFAULT_BOOKS = [
     {
@@ -217,65 +225,79 @@ class BookBankDB {
     }
 
     // --- ISSUE ---
-    requestIssue(studentId, isbn) {
-        let circs = this.getCirculation();
-        let books = this.getBooks();
+     requestIssue(studentId, isbn) {
 
-        let book = books.find(b => b.isbn === isbn);
-        if (!book || book.available_quantity <= 0) {
-            return { success: false };
-        }
+    let circs = this.getCirculation();
+    let books = this.getBooks();
 
-        let exists = circs.find(
-            c => c.studentId === studentId &&
-            c.isbn === isbn &&
-            c.status !== 'Returned'
-        );
+    let book = books.find(b => b.isbn === isbn);
 
-        if (exists) return { success: false };
-
-        circs.push({
-            recordId: 'REC-' + Math.random().toString(36).substr(2, 9),
-            studentId,
-            isbn,
-            issueDate: null,
-            dueDate: null,
-            returnDate: null,
-            fineApplied: 0,
-            status: 'Pending'
-        });
-
-        this.saveCirculation(circs);
-        return { success: true };
+    if (!book || book.available_quantity <= 0) {
+        return {
+            success: false,
+            message: "Book unavailable"
+        };
     }
+
+    let exists = circs.find(
+        c =>
+            c.studentId === studentId &&
+            c.isbn === isbn &&
+            c.status !== "Returned"
+    );
+
+    if (exists) {
+        return {
+            success: false,
+            message: "Already requested"
+        };
+    }
+
+    circs.push({
+        recordId: "REC-" + Date.now(),
+        studentId,
+        isbn,
+        issueDate: null,
+        dueDate: null,
+        returnDate: null,
+        fineApplied: 0,
+        status: "Pending"
+    });
+
+    this.saveCirculation(circs);
+
+    return {
+        success: true,
+        message: "Request submitted"
+    };
+}
 
     // --- APPROVE ---
-    approveIssue(recordId) {
-        let circs = this.getCirculation();
-        let books = this.getBooks();
+  approveIssue(recordId) {
+    let circs = this.getCirculation();
+    let books = this.getBooks();
 
-        let rec = circs.find(c => c.recordId === recordId);
-        if (!rec || rec.status !== 'Pending') return { success: false };
+    let rec = circs.find(c => c.recordId === recordId);
+    if (!rec || rec.status !== 'Pending') return { success: false };
 
-        let book = books.find(b => b.isbn === rec.isbn);
-        if (!book || book.available_quantity <= 0) return { success: false };
+    let book = books.find(b => b.isbn === rec.isbn);
+    if (!book || book.available_quantity <= 0) return { success: false };
 
-        book.available_quantity--;
+    book.available_quantity--;
 
-        let today = new Date();
-        let due = new Date();
-        due.setDate(today.getDate() + 14);
+    let today = new Date();
+    let due = new Date();
+    due.setDate(today.getDate() + 14);
 
-        rec.issueDate = today.toISOString().split('T')[0];
-        rec.dueDate = due.toISOString().split('T')[0];
-        rec.status = 'Issued';
+    rec.issueDate = today.toISOString().split('T')[0];
+    rec.dueDate = due.toISOString().split('T')[0];
+    rec.status = 'Issued';
 
-        this.saveBooks(books);
-        this.saveCirculation(circs);
+    this.saveBooks(books);
+    this.saveCirculation(circs);
 
-        return { success: true };
-    }
-
+    return { success: true };
+}
     // --- RETURN ---
     returnBook(recordId) {
         let circs = this.getCirculation();
