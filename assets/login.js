@@ -1,19 +1,23 @@
-import { auth } from "./firebase-config.js";
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import { auth } from "./firebase.js";
 
-// Yeh raha aapka updated click event listener
-document.getElementById("loginBtn").addEventListener("click", (e) => { 
-    e.preventDefault(); // Page ko automatic refresh hone se rokega
+import {
+  signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+document.getElementById("loginBtn").addEventListener("click", async () => {
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-          alert("Login Successful");
-          window.location.href = "dashboard-student.html"; // Sahi dashboard ka path
-      })
-      .catch((error) => {
-          alert(error.message); // Agar login fail hua to error alert dikhega
-      });
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const userCredential =
+      await signInWithEmailAndPassword(auth, email, password);
+
+    alert("Login Successful");
+    console.log(userCredential.user);
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
 });
