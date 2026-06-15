@@ -10,7 +10,9 @@ const DEFAULT_BOOKS = [
         department: 'Computer Science',
         total_quantity: 10,
         available_quantity: 10,
-        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/4106nv1g3yL._SX396_BO1,204,203,200_.jpg'
+        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/4106nv1g3yL._SX396_BO1,204,203,200_.jpg',
+        read_url: '',
+        download_url: 'https://openlibrary.org/works/OL20940766W'
     },
     {
         isbn: '978-0262033848',
@@ -19,7 +21,9 @@ const DEFAULT_BOOKS = [
         department: 'Computer Science',
         total_quantity: 8,
         available_quantity: 8,
-        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/41T5H8u7fUL._SX382_BO1,204,203,200_.jpg'
+        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/41T5H8u7fUL._SX382_BO1,204,203,200_.jpg',
+        read_url: '',
+        download_url: 'https://openlibrary.org/search?isbn=9780262033848'
     },
     {
         isbn: '978-0136061694',
@@ -28,7 +32,9 @@ const DEFAULT_BOOKS = [
         department: 'Computer Science',
         total_quantity: 6,
         available_quantity: 6,
-        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51d654P6-WL._SX379_BO1,204,203,200_.jpg'
+        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51d654P6-WL._SX379_BO1,204,203,200_.jpg',
+        read_url: '',
+        download_url: 'https://openlibrary.org/search?isbn=9780136061694'
     },
     {
         isbn: '978-0135114049',
@@ -37,7 +43,9 @@ const DEFAULT_BOOKS = [
         department: 'Mechanical Engineering',
         total_quantity: 5,
         available_quantity: 5,
-        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51zJ86G-jNL._SX397_BO1,204,203,200_.jpg'
+        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51zJ86G-jNL._SX397_BO1,204,203,200_.jpg',
+        read_url: '',
+        download_url: 'https://openlibrary.org/search?q=fluid+mechanics+hibbeler'
     },
     {
         isbn: '978-0132133357',
@@ -46,7 +54,9 @@ const DEFAULT_BOOKS = [
         department: 'Mechanical Engineering',
         total_quantity: 5,
         available_quantity: 5,
-        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/41-Kq3H5J7L._SX398_BO1,204,203,200_.jpg'
+        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/41-Kq3H5J7L._SX398_BO1,204,203,200_.jpg',
+        read_url: '',
+        download_url: 'https://openlibrary.org/search?q=thermodynamics+cengel+boles'
     },
     {
         isbn: '978-0073380575',
@@ -55,7 +65,9 @@ const DEFAULT_BOOKS = [
         department: 'Electrical Engineering',
         total_quantity: 7,
         available_quantity: 7,
-        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51K3W0Jz8QL._SX389_BO1,204,203,200_.jpg'
+        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51K3W0Jz8QL._SX389_BO1,204,203,200_.jpg',
+        read_url: '',
+        download_url: 'https://openlibrary.org/search?isbn=9780073380575'
     },
     {
         isbn: '978-0132198011',
@@ -64,13 +76,83 @@ const DEFAULT_BOOKS = [
         department: 'Civil Engineering',
         total_quantity: 4,
         available_quantity: 4,
-        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51t2hIEX6jL._SX397_BO1,204,203,200_.jpg'
+        cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51t2hIEX6jL._SX397_BO1,204,203,200_.jpg',
+        read_url: '',
+        download_url: 'https://openlibrary.org/search?q=geotechnical+engineering+das'
     }
 ];
 
 class BookBankDB {
     constructor() {
+        this.firebaseEnabled = false;
+        this.firestore = null;
+        this.initFirebase();
         this.init();
+    }
+
+    initFirebase() {
+        if (window.firebase && window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey && window.FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
+            try {
+                window.firebase.initializeApp(window.FIREBASE_CONFIG);
+                this.firestore = window.firebase.firestore();
+                this.firebaseEnabled = true;
+                console.log("Firebase Cloud Sync initialized successfully!");
+                this.syncFromCloud();
+            } catch (e) {
+                console.error("Failed to initialize Firebase:", e);
+            }
+        } else {
+            console.log("Firebase Config not set or invalid. Running in offline/localStorage mode.");
+        }
+    }
+
+    async syncFromCloud() {
+        if (!this.firebaseEnabled) return;
+        try {
+            // 1. Fetch Students
+            const studentsSnap = await this.firestore.collection('students').get();
+            const students = [];
+            studentsSnap.forEach(doc => students.push(doc.data()));
+            if (students.length > 0) this.saveStudents(students);
+
+            // 2. Fetch Books
+            const booksSnap = await this.firestore.collection('books').get();
+            const books = [];
+            booksSnap.forEach(doc => books.push(doc.data()));
+            if (books.length > 0) this.saveBooks(books);
+
+            // 3. Fetch Circulation
+            const circsSnap = await this.firestore.collection('circulation').get();
+            const circs = [];
+            circsSnap.forEach(doc => circs.push(doc.data()));
+            if (circs.length > 0) this.saveCirculation(circs);
+            
+            // Notify UI to refresh
+            window.dispatchEvent(new CustomEvent('dbSyncComplete'));
+        } catch (e) {
+            console.warn("Failed to sync from Firebase:", e);
+        }
+    }
+
+    async saveStudentToCloud(student) {
+        if (!this.firebaseEnabled) return;
+        try {
+            await this.firestore.collection('students').doc(student.studentId).set(student);
+        } catch(e) { console.error("Cloud student write failed:", e); }
+    }
+
+    async saveBookToCloud(book) {
+        if (!this.firebaseEnabled) return;
+        try {
+            await this.firestore.collection('books').doc(book.isbn).set(book);
+        } catch(e) { console.error("Cloud book write failed:", e); }
+    }
+
+    async saveCirculationToCloud(record) {
+        if (!this.firebaseEnabled) return;
+        try {
+            await this.firestore.collection('circulation').doc(record.recordId).set(record);
+        } catch(e) { console.error("Cloud circulation write failed:", e); }
     }
 
     init() {
@@ -109,15 +191,17 @@ class BookBankDB {
         if (students.find(s => s.studentId === studentId || s.email === email)) {
             return { success: false, message: 'Student ID or Email already registered!' };
         }
-        students.push({
+        const student = {
             studentId,
             name,
             email,
-            password, // In mock, plaintext password is fine, but structurally separated
+            password,
             department,
             balanceDue: 0.00
-        });
+        };
+        students.push(student);
         this.saveStudents(students);
+        this.saveStudentToCloud(student);
         return { success: true, message: 'Signup Successful! Please Login.' };
     }
 
@@ -152,21 +236,25 @@ class BookBankDB {
     }
 
     // --- Inventory Management ---
-    addBook(isbn, title, author, department, quantity, coverUrl) {
+    addBook(isbn, title, author, department, quantity, coverUrl, readUrl, downloadUrl) {
         let books = this.getBooks();
         if (books.find(b => b.isbn === isbn)) {
             return { success: false, message: 'Book with this ISBN already exists.' };
         }
-        books.push({
+        const book = {
             isbn,
             title,
             author,
             department,
             total_quantity: parseInt(quantity),
             available_quantity: parseInt(quantity),
-            cover_url: coverUrl || 'https://via.placeholder.com/150/1d3557/ffffff?text=No+Cover'
-        });
+            cover_url: coverUrl || 'https://via.placeholder.com/150/1d3557/ffffff?text=No+Cover',
+            read_url: readUrl || '',
+            download_url: downloadUrl || ''
+        };
+        books.push(book);
         this.saveBooks(books);
+        this.saveBookToCloud(book);
         return { success: true, message: 'Book added successfully!' };
     }
 
@@ -179,6 +267,7 @@ class BookBankDB {
             if (books[idx].available_quantity < 0) books[idx].available_quantity = 0;
             if (books[idx].total_quantity < 0) books[idx].total_quantity = 0;
             this.saveBooks(books);
+            this.saveBookToCloud(books[idx]);
         }
     }
 
@@ -189,6 +278,9 @@ class BookBankDB {
             return { success: false, message: 'Book not found.' };
         }
         this.saveBooks(filtered);
+        if (this.firebaseEnabled) {
+            try { this.firestore.collection('books').doc(isbn).delete(); } catch(e){}
+        }
         return { success: true, message: 'Book deleted successfully!' };
     }
 
@@ -208,7 +300,7 @@ class BookBankDB {
             return { success: false, message: 'You already have an active request or loan for this book.' };
         }
 
-        circs.push({
+        const record = {
             recordId: 'REC-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
             studentId,
             isbn,
@@ -217,9 +309,11 @@ class BookBankDB {
             returnDate: null,
             fineApplied: 0,
             status: 'Pending'
-        });
+        };
+        circs.push(record);
 
         this.saveCirculation(circs);
+        this.saveCirculationToCloud(record);
         return { success: true, message: 'Issue request submitted! Pending Admin approval.' };
     }
 
@@ -240,6 +334,7 @@ class BookBankDB {
         // Update book stock
         book.available_quantity -= 1;
         this.saveBooks(books);
+        this.saveBookToCloud(book);
 
         // Update record
         const today = new Date();
@@ -251,6 +346,7 @@ class BookBankDB {
         record.status = 'Issued';
 
         this.saveCirculation(circs);
+        this.saveCirculationToCloud(record);
         return { success: true, message: 'Book issue approved successfully!' };
     }
 
@@ -270,6 +366,7 @@ class BookBankDB {
                 book.available_quantity = book.total_quantity;
             }
             this.saveBooks(books);
+            this.saveBookToCloud(book);
         }
 
         const today = new Date();
@@ -290,10 +387,12 @@ class BookBankDB {
             if (student) {
                 student.balanceDue += fine;
                 this.saveStudents(students);
+                this.saveStudentToCloud(student);
             }
         }
 
         this.saveCirculation(circs);
+        this.saveCirculationToCloud(record);
         return { success: true, message: 'Book returned successfully!' };
     }
 
@@ -305,7 +404,81 @@ class BookBankDB {
         student.balanceDue -= amount;
         if (student.balanceDue < 0) student.balanceDue = 0;
         this.saveStudents(students);
+        this.saveStudentToCloud(student);
         return { success: true, message: 'Payment recorded successfully!' };
+    }
+
+    // --- Cross-Device Sync: Export/Import ---
+
+    // Export only the logged-in student's data (for device sync)
+    exportStudentData(studentId) {
+        const students = this.getStudents();
+        const student = students.find(s => s.studentId === studentId);
+        const circulation = this.getCirculation().filter(c => c.studentId === studentId);
+        const exportObj = {
+            version: '1.0',
+            type: 'student_backup',
+            exportDate: new Date().toISOString(),
+            student,
+            circulation
+        };
+        return JSON.stringify(exportObj, null, 2);
+    }
+
+    // Import student data (restores account on a new device)
+    importStudentData(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (!data.student) return { success: false, message: 'Invalid backup file. Student data not found.' };
+
+            // Restore student account
+            let students = this.getStudents();
+            const existingIdx = students.findIndex(s => s.studentId === data.student.studentId);
+            if (existingIdx !== -1) {
+                students[existingIdx] = data.student; // Update existing
+            } else {
+                students.push(data.student); // Add new
+            }
+            this.saveStudents(students);
+
+            // Restore circulation records (merge, avoid duplicates)
+            if (data.circulation && data.circulation.length > 0) {
+                let circs = this.getCirculation();
+                circs = circs.filter(c => c.studentId !== data.student.studentId);
+                circs.push(...data.circulation);
+                this.saveCirculation(circs);
+            }
+            return { success: true, message: 'Account restored successfully! Ab login karo.' };
+        } catch(e) {
+            return { success: false, message: 'Invalid or corrupted backup file.' };
+        }
+    }
+
+    // Export ALL data (for Admin full backup)
+    exportAllData() {
+        return JSON.stringify({
+            version: '1.0',
+            type: 'full_backup',
+            exportDate: new Date().toISOString(),
+            students: this.getStudents(),
+            books: this.getBooks(),
+            circulation: this.getCirculation(),
+            admins: this.getAdmins()
+        }, null, 2);
+    }
+
+    // Import ALL data (Admin restore)
+    importAllData(jsonStr) {
+        try {
+            const data = JSON.parse(jsonStr);
+            if (data.students)   this.saveStudents(data.students);
+            if (data.books)      this.saveBooks(data.books);
+            if (data.circulation) this.saveCirculation(data.circulation);
+            if (data.admins)     localStorage.setItem('admins', JSON.stringify(data.admins));
+            return { success: true, message: 'Full data restored successfully!' };
+        } catch(e) {
+            return { success: false, message: 'Invalid backup file.' };
+        }
     }
 }
 

@@ -141,6 +141,21 @@
                         <i class="fa-solid fa-graduation-cap me-1"></i> Google Scholar
                     </a>
                 </div>
+
+                <!-- Device Sync Panel -->
+                <div class="glass-card p-4 mt-4">
+                    <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-rotate me-2"></i>Device Sync</h6>
+                    <p class="text-muted" style="font-size: 0.75rem; line-height: 1.4;">
+                        Apne account data ko backup file (.json) ke roop me download karein aur dusre laptop/phone me restore karein.
+                    </p>
+                    <button class="btn btn-outline-primary btn-sm w-100 rounded-pill mb-2" onclick="exportBackup()">
+                        <i class="fa-solid fa-download me-1"></i> Export Backup
+                    </button>
+                    <button class="btn btn-outline-success btn-sm w-100 rounded-pill" onclick="triggerImport()">
+                        <i class="fa-solid fa-upload me-1"></i> Import Backup
+                    </button>
+                    <input type="file" id="backupFileInput" accept=".json" style="display: none;" onchange="importBackup(event)">
+                </div>
             </div>
 
             <!-- Dashboard Content -->
@@ -271,6 +286,10 @@
 
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <!-- DB, App, and AI Engines -->
     <script src="assets/js/db.js"></script>
     <script src="assets/js/ai.js"></script>
@@ -398,6 +417,26 @@
                         : `<button class="btn btn-outline-danger w-100 btn-sm rounded-pill mt-3" disabled>
                             <i class="fa-solid fa-ban me-1"></i> Out of Stock</button>`;
 
+                let digitalAccessHtml = '';
+                if (book.read_url || book.download_url) {
+                    digitalAccessHtml = `
+                        <div class="d-flex gap-2 mt-2">
+                            ${book.read_url ? `
+                                <a href="book-reader.html?isbn=${book.isbn}&title=${encodeURIComponent(book.title)}&author=${encodeURIComponent(book.author)}&readUrl=${encodeURIComponent(book.read_url)}&downloadUrl=${encodeURIComponent(book.download_url)}"
+                                   class="btn btn-outline-info btn-sm rounded-pill flex-grow-1" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-book-open me-1"></i> Read Online
+                                </a>
+                            ` : ''}
+                            ${book.download_url ? `
+                                <a href="${book.download_url}" target="_blank"
+                                   class="btn btn-outline-success btn-sm rounded-pill flex-grow-1" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-download me-1"></i> Download
+                                </a>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+
                 catalogGrid.innerHTML += `
                     <div class="col-md-4">
                         <div class="card book-card border-0 h-100 p-3">
@@ -414,6 +453,7 @@
                                     ${book.available_quantity > 0 ? 'Available' : 'Unavailable'}
                                 </span>
                             </div>
+                            ${digitalAccessHtml}
                             ${btnHtml}
                         </div>
                     </div>
@@ -582,6 +622,47 @@
                 showNotification(res.message, "danger");
             }
         }
+
+        // Export/Import Backup
+        function exportBackup() {
+            const dataStr = window.db.exportStudentData(student.studentId);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = `bookbank_backup_${student.studentId}.json`;
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            showNotification("Backup file exported successfully!", "success");
+        }
+
+        function triggerImport() {
+            document.getElementById('backupFileInput').click();
+        }
+
+        function importBackup(event) {
+            const input = event.target;
+            const reader = new FileReader();
+            reader.onload = function() {
+                const text = reader.result;
+                const res = window.db.importStudentData(text);
+                if (res.success) {
+                    showNotification(res.message, "success");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(res.message, "danger");
+                }
+            };
+            if (input.files && input.files[0]) {
+                reader.readAsText(input.files[0]);
+            }
+        }
+
+        window.addEventListener('dbSyncComplete', () => {
+            initStudentDashboard();
+        });
 
         window.addEventListener('DOMContentLoaded', initStudentDashboard);
     </script>
