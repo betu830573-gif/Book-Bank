@@ -69,6 +69,98 @@ const DEFAULT_BOOKS = [
         available_quantity: 4,
         cover_url: 'https://images-na.ssl-images-amazon.com/images/I/51t2hIEX6jL._SX397_BO1,204,203,200_.jpg'
     }
+
+    ,
+{
+    isbn: '978-9356061319',
+    title: 'Java: The Complete Reference',
+    author: 'Herbert Schildt',
+    department: 'Computer Science',
+    total_quantity: 10,
+    available_quantity: 10,
+    cover_url: 'https://via.placeholder.com/150x220?text=Java'
+},
+{
+    isbn: '978-9355423484',
+    title: 'Python Crash Course',
+    author: 'Eric Matthes',
+    department: 'Computer Science',
+    total_quantity: 8,
+    available_quantity: 8,
+    cover_url: 'https://via.placeholder.com/150x220?text=Python'
+},
+{
+    isbn: '978-0132350884',
+    title: 'Clean Code',
+    author: 'Robert C. Martin',
+    department: 'Computer Science',
+    total_quantity: 6,
+    available_quantity: 6,
+    cover_url: 'https://via.placeholder.com/150x220?text=Clean+Code'
+},
+{
+    isbn: '978-1259028641',
+    title: 'Engineering Mechanics',
+    author: 'R.C. Hibbeler',
+    department: 'Mechanical Engineering',
+    total_quantity: 5,
+    available_quantity: 5,
+    cover_url: 'https://via.placeholder.com/150x220?text=Mechanics'
+},
+{
+    isbn: '978-8126562170',
+    title: 'Strength of Materials',
+    author: 'S.S. Bhavikatti',
+    department: 'Civil Engineering',
+    total_quantity: 7,
+    available_quantity: 7,
+    cover_url: 'https://via.placeholder.com/150x220?text=SOM'
+},
+{
+    isbn: '978-9332542603',
+    title: 'Digital Electronics',
+    author: 'Morris Mano',
+    department: 'Electrical Engineering',
+    total_quantity: 9,
+    available_quantity: 9,
+    cover_url: 'https://via.placeholder.com/150x220?text=Digital+Electronics'
+},
+{
+    isbn: '978-8120340071',
+    title: 'Data Structures Using C',
+    author: 'Reema Thareja',
+    department: 'Computer Science',
+    total_quantity: 10,
+    available_quantity: 10,
+    cover_url: 'https://via.placeholder.com/150x220?text=Data+Structures'
+},
+{
+    isbn: '978-8131727633',
+    title: 'Database System Concepts',
+    author: 'Abraham Silberschatz',
+    department: 'Computer Science',
+    total_quantity: 8,
+    available_quantity: 8,
+    cover_url: 'https://via.placeholder.com/150x220?text=DBMS'
+},
+{
+    isbn: '978-9339219669',
+    title: 'Computer Networks',
+    author: 'Andrew S. Tanenbaum',
+    department: 'Computer Science',
+    total_quantity: 7,
+    available_quantity: 7,
+    cover_url: 'https://via.placeholder.com/150x220?text=Networks'
+},
+{
+    isbn: '978-9332575779',
+    title: 'Operating System Concepts',
+    author: 'Abraham Silberschatz',
+    department: 'Computer Science',
+    total_quantity: 6,
+    available_quantity: 6,
+    cover_url: 'https://via.placeholder.com/150x220?text=OS'
+}
 ];
 
 class BookBankDB {
