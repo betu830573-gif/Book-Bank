@@ -284,10 +284,17 @@
 
     <!-- Student Dashboard Controller Logic -->
     <script>
-       guardPage('student');
-
         let student = null;
 
+window.addEventListener('DOMContentLoaded', () => {
+    guardPage('student');
+
+    try {
+        initStudentDashboard();
+    } catch (error) {
+        console.error('Dashboard Error:', error);
+    }
+});
         function initStudentDashboard() {
             student = window.db.getCurrentUser();
             if (!student) return;
