@@ -1,10 +1,13 @@
 /**
- * AI-Based Book Recommendation Engine - Google Books API Integration
+ * AI-Based Book Recommendation Engine for Book Bank Management System
+ * Upgraded with Google Books API Integration
  * Author: Vivek Sen
- * Fixed: CORS handling, error fallback, proper API calls
+ * Fixed: CORS handling, error fallback, proper API calls, combined with offline mode support
  */
 
-const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
+// ===== GOOGLE BOOKS API =====
+const API_KEY = "AIzaSyBC4DiJJUsHQFBoiYLOTstcURkcnpf2LqY";
+const GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes";
 
 // Department to Search Keywords
 const DEPT_KEYWORDS = {
@@ -101,18 +104,23 @@ class BookRecommendationEngine {
 
         const apiOk = await this.testAPI();
         if (!apiOk) {
-            // Return fallback data
             return this.getFallbackBooks(department);
         }
 
         try {
-            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(keyword)}&maxResults=${maxResults}&printType=books&orderBy=relevance`;
+            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(keyword + ' textbook college')}&maxResults=${maxResults}&printType=books&langRestrict=en&orderBy=relevance&key=${API_KEY}`;
+            console.log("Request URL:", url);
+
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 6000);
             const response = await fetch(url, { signal: controller.signal });
             clearTimeout(timeout);
 
-            if (!response.ok) throw new Error('API response not ok');
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(errorText);
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
 
             const data = await response.json();
             if (!data.items || data.items.length === 0) {
@@ -124,7 +132,6 @@ class BookRecommendationEngine {
                 let cover = info.imageLinks
                     ? (info.imageLinks.thumbnail || info.imageLinks.smallThumbnail)
                     : null;
-                // Fix http to https for cover images
                 if (cover) cover = cover.replace('http://', 'https://');
 
                 return {
@@ -177,13 +184,12 @@ class BookRecommendationEngine {
         }));
     }
 
-    // Search Google Books
+    // Search Google Books API by query
     async searchGoogleBooks(query, maxResults = 10) {
         if (!query) return [];
 
         const apiOk = await this.testAPI();
         if (!apiOk) {
-            // Return filtered fallback across all departments
             const allFallback = Object.values(FALLBACK_BOOKS).flat();
             const q = query.toLowerCase();
             const filtered = allFallback.filter(b =>
@@ -201,13 +207,20 @@ class BookRecommendationEngine {
         }
 
         try {
-            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&printType=books&orderBy=relevance`;
+            const url = `${GOOGLE_BOOKS_API}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&printType=books&langRestrict=en&key=${API_KEY}`;
+            console.log("Request URL:", url);
+
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 6000);
             const response = await fetch(url, { signal: controller.signal });
             clearTimeout(timeout);
 
-            if (!response.ok) throw new Error('Search failed');
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(errorText);
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+
             const data = await response.json();
             if (!data.items) return [];
 

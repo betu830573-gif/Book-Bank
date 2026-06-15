@@ -13,7 +13,9 @@
     <!-- Google Font & Custom CSS -->
     <link href="assets/css/style.css" rel="stylesheet">
 </head>
+
 <body>
+
 
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg">
@@ -153,8 +155,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>
     <!-- DB & App JS -->
-    <script src="assets/js/db.js"></script>
-    <script src="assets/js/app.js"></script>
+  <script src="assets/js/db.js"></script>
+<script src="assets/js/app.js"></script>
 
     <!-- Auth Controller Logic -->
     <script>
@@ -170,89 +172,106 @@
             }
         }
 
-        // Student Login
-        document.getElementById('studentLoginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('stuLoginEmail').value;
-            const password = document.getElementById('stuLoginPassword').value;
+       // Student Login
+document.getElementById('studentLoginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
 
-            const res = window.db.loginStudent(email, password);
-            if (res.success) {
-                showNotification("Welcome back, " + res.user.name + "!", "success");
-                setTimeout(() => { window.location.href = "dashboard-student.html"; }, 1000);
-            } else {
-                showNotification(res.message, "danger");
-            }
-        });
+    const email = document.getElementById('stuLoginEmail').value.trim();
+    const password = document.getElementById('stuLoginPassword').value.trim();
 
-        // Student Signup
-        document.getElementById('studentSignupForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('stuRegId').value;
-            const name = document.getElementById('stuRegName').value;
-            const email = document.getElementById('stuRegEmail').value;
-            const dept = document.getElementById('stuRegDept').value;
-            const pass = document.getElementById('stuRegPassword').value;
+    const res = window.db.loginStudent(email, password);
 
-            if (pass.length < 6) {
-                showNotification("Password must be at least 6 characters long.", "danger");
-                return;
-            }
+    if (res.success) {
+        showNotification("Welcome back, " + res.user.name + "!", "success");
 
-            const res = window.db.signupStudent(id, name, email, pass, dept);
-            if (res.success) {
-                showNotification(res.message, "success");
-                toggleStuForms(false);
-                document.getElementById('stuLoginEmail').value = email;
-            } else {
-                showNotification(res.message, "danger");
-            }
-        });
+        setTimeout(() => {
+            window.location.href = "dashboard-student.html";
+        }, 1000);
+    } else {
+        showNotification("Invalid Email or Password", "danger");
+    }
+});
 
-        // Admin Login
-        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
 
-            const res = window.db.loginAdmin(email, password);
-            if (res.success) {
-                showNotification("Welcome back, Administrator!", "success");
-                setTimeout(() => { window.location.href = "dashboard-admin.html"; }, 1000);
-            } else {
-                showNotification(res.message, "danger");
-            }
-        });
+// Student Signup
+document.getElementById('studentSignupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
 
-        // Backup restore functions for Student account
-        function triggerImport() {
-            document.getElementById('backupFileInput').click();
-        }
+    const id = document.getElementById('stuRegId').value.trim();
+    const name = document.getElementById('stuRegName').value.trim();
+    const email = document.getElementById('stuRegEmail').value.trim();
+    const dept = document.getElementById('stuRegDept').value;
+    const pass = document.getElementById('stuRegPassword').value;
 
-        function importBackup(event) {
-            const input = event.target;
-            const reader = new FileReader();
-            reader.onload = function() {
-                const text = reader.result;
-                const res = window.db.importStudentData(text);
-                if (res.success) {
-                    showNotification(res.message, "success");
-                    // Pre-fill email
-                    try {
-                        const data = JSON.parse(text);
-                        if (data.student && data.student.email) {
-                            document.getElementById('stuLoginEmail').value = data.student.email;
-                        }
-                    } catch(e) {}
-                } else {
-                    showNotification(res.message, "danger");
+    if (pass.length < 6) {
+        showNotification("Password must be at least 6 characters long.", "danger");
+        return;
+    }
+
+    const res = window.db.signupStudent(id, name, email, pass, dept);
+
+    if (res.success) {
+        showNotification("Registration Successful!", "success");
+
+        toggleStuForms(false);
+
+        document.getElementById('stuLoginEmail').value = email;
+        document.getElementById('stuLoginPassword').value = "";
+    } else {
+        showNotification(res.message || "Registration Failed", "danger");
+    }
+});
+
+// Backup restore functions for Student account
+function triggerImport() {
+    document.getElementById('backupFileInput').click();
+}
+
+function importBackup(event) {
+    const input = event.target;
+    const reader = new FileReader();
+    reader.onload = function() {
+        const text = reader.result;
+        const res = window.db.importStudentData(text);
+        if (res.success) {
+            showNotification(res.message, "success");
+            // Pre-fill email
+            try {
+                const data = JSON.parse(text);
+                if (data.student && data.student.email) {
+                    document.getElementById('stuLoginEmail').value = data.student.email;
                 }
-            };
-            if (input.files && input.files[0]) {
-                reader.readAsText(input.files[0]);
-            }
+            } catch(e) {}
+        } else {
+            showNotification(res.message, "danger");
         }
+    };
+    if (input.files && input.files[0]) {
+        reader.readAsText(input.files[0]);
+    }
+}
 
+
+// Admin Login
+document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+
+    const res = window.db.loginAdmin(email, password);
+
+    if (res.success) {
+        showNotification("Welcome back, Administrator!", "success");
+
+        setTimeout(() => {
+            window.location.href = "dashboard-admin.html";
+        }, 1000);
+    } else {
+        showNotification("Invalid Admin Credentials", "danger");
+    }
+});
+>>>>>>> origin/main
         // Pre-fill tab if requested via query param
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);

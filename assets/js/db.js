@@ -1,5 +1,6 @@
 /**
  * Relational localStorage Database for the Book Bank Management System
+ * Integrated with Google Firebase Firestore for Cross-Device Sync
  */
 
 const DEFAULT_BOOKS = [
@@ -173,17 +174,25 @@ class BookBankDB {
         }
     }
 
-    // --- Helper Methods ---
-    getStudents() { return JSON.parse(localStorage.getItem('students')); }
+    // --- Safe Parse Helpers ---
+    safeGet(key) {
+        try {
+            return JSON.parse(localStorage.getItem(key)) || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    getStudents() { return this.safeGet('students'); }
     saveStudents(data) { localStorage.setItem('students', JSON.stringify(data)); }
 
-    getBooks() { return JSON.parse(localStorage.getItem('books')); }
+    getBooks() { return this.safeGet('books'); }
     saveBooks(data) { localStorage.setItem('books', JSON.stringify(data)); }
 
-    getCirculation() { return JSON.parse(localStorage.getItem('circulation')); }
+    getCirculation() { return this.safeGet('circulation'); }
     saveCirculation(data) { localStorage.setItem('circulation', JSON.stringify(data)); }
 
-    getAdmins() { return JSON.parse(localStorage.getItem('admins')); }
+    getAdmins() { return this.safeGet('admins'); }
 
     // --- Student Auth ---
     signupStudent(studentId, name, email, password, department) {
@@ -206,33 +215,67 @@ class BookBankDB {
     }
 
     loginStudent(email, password) {
-        let students = this.getStudents();
-        let student = students.find(s => s.email === email && s.password === password);
-        if (student) {
-            sessionStorage.setItem('currentUser', JSON.stringify({ ...student, role: 'student' }));
-            return { success: true, user: student };
+        const students = this.getStudents();
+        const user = students.find(
+            s =>
+                s.email.toLowerCase() === email.toLowerCase() &&
+                s.password === password
+        );
+
+        if (!user) {
+            return {
+                success: false,
+                message: "Invalid Email or Password"
+            };
         }
-        return { success: false, message: 'Invalid Student Email or Password.' };
+
+        sessionStorage.setItem('currentUser', JSON.stringify({
+            ...user,
+            role: 'student'
+        }));
+
+        return {
+            success: true,
+            user
+        };
     }
 
     // --- Admin Auth ---
     loginAdmin(email, password) {
-        let admins = this.getAdmins();
-        let admin = admins.find(a => a.email === email && a.password === password);
-        if (admin) {
-            sessionStorage.setItem('currentUser', JSON.stringify({ ...admin, role: 'admin' }));
-            return { success: true, user: admin };
+        const admin = this.getAdmins().find(
+            a =>
+                a.email.toLowerCase() === email.toLowerCase() &&
+                a.password === password
+        );
+
+        if (!admin) {
+            return {
+                success: false,
+                message: "Invalid Admin Credentials"
+            };
         }
-        return { success: false, message: 'Invalid Admin Email or Password.' };
+
+        sessionStorage.setItem('currentUser', JSON.stringify({
+            ...admin,
+            role: 'admin'
+        }));
+
+        return {
+            success: true,
+            user: admin
+        };
     }
 
-    // --- Logged-In User Actions ---
     logout() {
         sessionStorage.removeItem('currentUser');
     }
 
     getCurrentUser() {
-        return JSON.parse(sessionStorage.getItem('currentUser'));
+        try {
+            return JSON.parse(sessionStorage.getItem('currentUser'));
+        } catch {
+            return null;
+        }
     }
 
     // --- Inventory Management ---
@@ -258,26 +301,26 @@ class BookBankDB {
         return { success: true, message: 'Book added successfully!' };
     }
 
-    updateBookStock(isbn, increment) {
+    updateBookStock(isbn, inc) {
         let books = this.getBooks();
-        let idx = books.findIndex(b => b.isbn === isbn);
-        if (idx !== -1) {
-            books[idx].total_quantity += increment;
-            books[idx].available_quantity += increment;
-            if (books[idx].available_quantity < 0) books[idx].available_quantity = 0;
-            if (books[idx].total_quantity < 0) books[idx].total_quantity = 0;
+        let b = books.find(x => x.isbn === isbn);
+        if (b) {
+            b.total_quantity += inc;
+            b.available_quantity += inc;
+            if (b.available_quantity < 0) b.available_quantity = 0;
+            if (b.total_quantity < 0) b.total_quantity = 0;
             this.saveBooks(books);
-            this.saveBookToCloud(books[idx]);
+            this.saveBookToCloud(b);
         }
     }
 
     deleteBook(isbn) {
         let books = this.getBooks();
-        let filtered = books.filter(b => b.isbn !== isbn);
-        if (books.length === filtered.length) {
+        let newBooks = books.filter(b => b.isbn !== isbn);
+        if (books.length === newBooks.length) {
             return { success: false, message: 'Book not found.' };
         }
-        this.saveBooks(filtered);
+        this.saveBooks(newBooks);
         if (this.firebaseEnabled) {
             try { this.firestore.collection('books').doc(isbn).delete(); } catch(e){}
         }
@@ -294,9 +337,13 @@ class BookBankDB {
             return { success: false, message: 'Book is currently out of stock!' };
         }
 
-        // Check if student already has this active or pending issue
-        let existing = circs.find(c => c.studentId === studentId && c.isbn === isbn && c.status !== 'Returned');
-        if (existing) {
+        let exists = circs.find(
+            c =>
+                c.studentId === studentId &&
+                c.isbn === isbn &&
+                c.status !== "Returned"
+        );
+        if (exists) {
             return { success: false, message: 'You already have an active request or loan for this book.' };
         }
 
@@ -304,7 +351,7 @@ class BookBankDB {
             recordId: 'REC-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
             studentId,
             isbn,
-            issueDate: null, // set upon admin approval
+            issueDate: null,
             dueDate: null,
             returnDate: null,
             fineApplied: 0,
@@ -320,46 +367,44 @@ class BookBankDB {
     approveIssue(recordId) {
         let circs = this.getCirculation();
         let books = this.getBooks();
-        let record = circs.find(c => c.recordId === recordId);
+        let rec = circs.find(c => c.recordId === recordId);
 
-        if (!record || record.status !== 'Pending') {
+        if (!rec || rec.status !== 'Pending') {
             return { success: false, message: 'Invalid or completed record.' };
         }
 
-        let book = books.find(b => b.isbn === record.isbn);
+        let book = books.find(b => b.isbn === rec.isbn);
         if (!book || book.available_quantity <= 0) {
             return { success: false, message: 'Book is no longer in stock.' };
         }
 
-        // Update book stock
         book.available_quantity -= 1;
         this.saveBooks(books);
         this.saveBookToCloud(book);
 
-        // Update record
         const today = new Date();
-        const dueDate = new Date();
-        dueDate.setDate(today.getDate() + 14); // 14 days return period
+        const due = new Date();
+        due.setDate(today.getDate() + 14);
 
-        record.issueDate = today.toISOString().split('T')[0];
-        record.dueDate = dueDate.toISOString().split('T')[0];
-        record.status = 'Issued';
+        rec.issueDate = today.toISOString().split('T')[0];
+        rec.dueDate = due.toISOString().split('T')[0];
+        rec.status = 'Issued';
 
         this.saveCirculation(circs);
-        this.saveCirculationToCloud(record);
+        this.saveCirculationToCloud(rec);
         return { success: true, message: 'Book issue approved successfully!' };
     }
 
     returnBook(recordId) {
         let circs = this.getCirculation();
         let books = this.getBooks();
-        let record = circs.find(c => c.recordId === recordId);
+        let rec = circs.find(c => c.recordId === recordId);
 
-        if (!record || record.status !== 'Issued') {
+        if (!rec || rec.status !== 'Issued') {
             return { success: false, message: 'Record not active for return.' };
         }
 
-        let book = books.find(b => b.isbn === record.isbn);
+        let book = books.find(b => b.isbn === rec.isbn);
         if (book) {
             book.available_quantity += 1;
             if (book.available_quantity > book.total_quantity) {
@@ -370,47 +415,42 @@ class BookBankDB {
         }
 
         const today = new Date();
-        record.returnDate = today.toISOString().split('T')[0];
-        record.status = 'Returned';
+        rec.returnDate = today.toISOString().split('T')[0];
+        rec.status = 'Returned';
 
-        // Calculate dynamic fine if overdue
-        const dueDateObj = new Date(record.dueDate);
-        const diffTime = today - dueDateObj;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays > 0) {
-            const fine = diffDays * 1.00; // $1 fine per day
-            record.fineApplied = fine;
+        const due = new Date(rec.dueDate || today);
+        const diff = Math.ceil((today - due) / (1000 * 60 * 60 * 24));
+        if (diff > 0) {
+            const fine = diff * 1.00;
+            rec.fineApplied = fine;
 
-            // Apply fine to Student account
             let students = this.getStudents();
-            let student = students.find(s => s.studentId === record.studentId);
-            if (student) {
-                student.balanceDue += fine;
+            let s = students.find(st => st.studentId === rec.studentId);
+            if (s) {
+                s.balanceDue += fine;
                 this.saveStudents(students);
-                this.saveStudentToCloud(student);
+                this.saveStudentToCloud(s);
             }
         }
 
         this.saveCirculation(circs);
-        this.saveCirculationToCloud(record);
+        this.saveCirculationToCloud(rec);
         return { success: true, message: 'Book returned successfully!' };
     }
 
     payFine(studentId, amount) {
         let students = this.getStudents();
-        let student = students.find(s => s.studentId === studentId);
-        if (!student) return { success: false, message: 'Student not found.' };
+        let s = students.find(x => x.studentId === studentId);
+        if (!s) return { success: false, message: 'Student not found.' };
 
-        student.balanceDue -= amount;
-        if (student.balanceDue < 0) student.balanceDue = 0;
+        s.balanceDue -= amount;
+        if (s.balanceDue < 0) s.balanceDue = 0;
         this.saveStudents(students);
-        this.saveStudentToCloud(student);
+        this.saveStudentToCloud(s);
         return { success: true, message: 'Payment recorded successfully!' };
     }
 
     // --- Cross-Device Sync: Export/Import ---
-
-    // Export only the logged-in student's data (for device sync)
     exportStudentData(studentId) {
         const students = this.getStudents();
         const student = students.find(s => s.studentId === studentId);
@@ -425,23 +465,20 @@ class BookBankDB {
         return JSON.stringify(exportObj, null, 2);
     }
 
-    // Import student data (restores account on a new device)
     importStudentData(jsonStr) {
         try {
             const data = JSON.parse(jsonStr);
             if (!data.student) return { success: false, message: 'Invalid backup file. Student data not found.' };
 
-            // Restore student account
             let students = this.getStudents();
             const existingIdx = students.findIndex(s => s.studentId === data.student.studentId);
             if (existingIdx !== -1) {
-                students[existingIdx] = data.student; // Update existing
+                students[existingIdx] = data.student;
             } else {
-                students.push(data.student); // Add new
+                students.push(data.student);
             }
             this.saveStudents(students);
 
-            // Restore circulation records (merge, avoid duplicates)
             if (data.circulation && data.circulation.length > 0) {
                 let circs = this.getCirculation();
                 circs = circs.filter(c => c.studentId !== data.student.studentId);
@@ -454,7 +491,6 @@ class BookBankDB {
         }
     }
 
-    // Export ALL data (for Admin full backup)
     exportAllData() {
         return JSON.stringify({
             version: '1.0',
@@ -467,7 +503,6 @@ class BookBankDB {
         }, null, 2);
     }
 
-    // Import ALL data (Admin restore)
     importAllData(jsonStr) {
         try {
             const data = JSON.parse(jsonStr);
@@ -482,5 +517,4 @@ class BookBankDB {
     }
 }
 
-// Global Single Instance
 window.db = new BookBankDB();

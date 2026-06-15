@@ -88,7 +88,7 @@
                     <div class="col-md-3">
                         <div class="card p-3 border-0 shadow-sm bg-white border-start border-danger border-4">
                             <small class="text-muted text-uppercase fw-semibold" style="font-size: 0.75rem;">Fines Outstanding</small>
-                            <h3 class="fw-bold mt-2 mb-0 text-danger" id="statTotalFines">$0.00</h3>
+                            <h3 class="fw-bold mt-2 mb-0 text-danger" id="statTotalFines">₹0.00</h3>
                         </div>
                     </div>
                 </div>
@@ -272,7 +272,7 @@
 
             // calculate outstanding fine balance
             let fineTotal = students.reduce((acc, curr) => acc + curr.balanceDue, 0);
-            document.getElementById('statTotalFines').textContent = `$${fineTotal.toFixed(2)}`;
+            document.getElementById('statTotalFines').textContent = `₹${fineTotal.toFixed(2)}`;
         }
 
         function loadPendingRequests() {
