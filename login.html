@@ -145,6 +145,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- DB & App JS -->
   <script src="assets/js/db.js"></script>
+<script src="assets/js/app.js"></script>
 
     <!-- Auth Controller Logic -->
     <script>
@@ -160,60 +161,76 @@
             }
         }
 
-        // Student Login
-        document.getElementById('studentLoginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('stuLoginEmail').value;
-            const password = document.getElementById('stuLoginPassword').value;
+       // Student Login
+document.getElementById('studentLoginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
 
-            const res = window.db.loginStudent(email, password);
-            if (res.success) {
-                showNotification("Welcome back, " + res.user.name + "!", "success");
-                setTimeout(() => { window.location.href = "dashboard-student.html"; }, 1000);
-            } else {
-                showNotification(res.message, "danger");
-            }
-        });
+    const email = document.getElementById('stuLoginEmail').value.trim();
+    const password = document.getElementById('stuLoginPassword').value.trim();
 
-        // Student Signup
-        document.getElementById('studentSignupForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('stuRegId').value;
-            const name = document.getElementById('stuRegName').value;
-            const email = document.getElementById('stuRegEmail').value;
-            const dept = document.getElementById('stuRegDept').value;
-            const pass = document.getElementById('stuRegPassword').value;
+    const res = window.db.loginStudent(email, password);
 
-            if (pass.length < 6) {
-                showNotification("Password must be at least 6 characters long.", "danger");
-                return;
-            }
+    if (res.success) {
+        showNotification("Welcome back, " + res.user.name + "!", "success");
 
-            const res = window.db.signupStudent(id, name, email, pass, dept);
-            if (res.success) {
-                showNotification(res.message, "success");
-                toggleStuForms(false);
-                document.getElementById('stuLoginEmail').value = email;
-            } else {
-                showNotification(res.message, "danger");
-            }
-        });
+        setTimeout(() => {
+            window.location.href = "dashboard-student.html";
+        }, 1000);
+    } else {
+        showNotification("Invalid Email or Password", "danger");
+    }
+});
 
-        // Admin Login
-        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
 
-            const res = window.db.loginAdmin(email, password);
-            if (res.success) {
-                showNotification("Welcome back, Administrator!", "success");
-                setTimeout(() => { window.location.href = "dashboard-admin.html"; }, 1000);
-            } else {
-                showNotification(res.message, "danger");
-            }
-        });
+// Student Signup
+document.getElementById('studentSignupForm').addEventListener('submit', (e) => {
+    e.preventDefault();
 
+    const id = document.getElementById('stuRegId').value.trim();
+    const name = document.getElementById('stuRegName').value.trim();
+    const email = document.getElementById('stuRegEmail').value.trim();
+    const dept = document.getElementById('stuRegDept').value;
+    const pass = document.getElementById('stuRegPassword').value;
+
+    if (pass.length < 6) {
+        showNotification("Password must be at least 6 characters long.", "danger");
+        return;
+    }
+
+    const res = window.db.signupStudent(id, name, email, pass, dept);
+
+    if (res.success) {
+        showNotification("Registration Successful!", "success");
+
+        toggleStuForms(false);
+
+        document.getElementById('stuLoginEmail').value = email;
+        document.getElementById('stuLoginPassword').value = "";
+    } else {
+        showNotification(res.message || "Registration Failed", "danger");
+    }
+});
+
+
+// Admin Login
+document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+
+    const res = window.db.loginAdmin(email, password);
+
+    if (res.success) {
+        showNotification("Welcome back, Administrator!", "success");
+
+        setTimeout(() => {
+            window.location.href = "dashboard-admin.html";
+        }, 1000);
+    } else {
+        showNotification("Invalid Admin Credentials", "danger");
+    }
+});
         // Pre-fill tab if requested via query param
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
