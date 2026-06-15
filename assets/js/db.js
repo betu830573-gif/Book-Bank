@@ -139,24 +139,57 @@ class BookBankDB {
         return { success: true };
     }
 
-    loginStudent(email, password) {
-        let students = this.getStudents();
-        let user = students.find(s => s.email === email && s.password === password);
+   loginStudent(email, password) {
+    const students = this.getStudents();
 
-        if (!user) return { success: false };
+    const user = students.find(
+        s =>
+            s.email.toLowerCase() === email.toLowerCase() &&
+            s.password === password
+    );
 
-        sessionStorage.setItem('currentUser', JSON.stringify({ ...user, role: 'student' }));
-        return { success: true, user };
+    if (!user) {
+        return {
+            success: false,
+            message: "Invalid Email or Password"
+        };
     }
 
-    loginAdmin(email, password) {
-        let admin = this.getAdmins().find(a => a.email === email && a.password === password);
+    sessionStorage.setItem('currentUser', JSON.stringify({
+        ...user,
+        role: 'student'
+    }));
 
-        if (!admin) return { success: false };
+    return {
+        success: true,
+        user
+    };
+}
 
-        sessionStorage.setItem('currentUser', JSON.stringify({ ...admin, role: 'admin' }));
-        return { success: true, user: admin };
+loginAdmin(email, password) {
+    const admin = this.getAdmins().find(
+        a =>
+            a.email.toLowerCase() === email.toLowerCase() &&
+            a.password === password
+    );
+
+    if (!admin) {
+        return {
+            success: false,
+            message: "Invalid Admin Credentials"
+        };
     }
+
+    sessionStorage.setItem('currentUser', JSON.stringify({
+        ...admin,
+        role: 'admin'
+    }));
+
+    return {
+        success: true,
+        user: admin
+    };
+}
 
     logout() {
         sessionStorage.removeItem('currentUser');
