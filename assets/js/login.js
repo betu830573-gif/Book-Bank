@@ -12,18 +12,23 @@ document.getElementById("loginBtn").addEventListener("click", () => {
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
 
-      const user = userCredential.user;
+      // ADMIN EMAIL
+      if (email === "admin@gmail.com") {
 
-      if (email.includes("admin")) {
-        window.location.href = "dashboard-admin.html";
+        window.location.href = "../../dashboard-admin.html";
+
       } else {
-        window.location.href = "dashboard-student.html";
+
+        window.location.href = "../../dashboard-student.html";
+
       }
 
     })
     .catch((error) => {
-      alert(error.message);
+
       console.log(error);
+      alert(error.message);
+
     });
 
 });
