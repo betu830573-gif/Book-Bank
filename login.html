@@ -18,224 +18,398 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm">
     <div class="container">
 
         <a class="navbar-brand d-flex align-items-center" href="index.html">
             <i class="fa-solid fa-graduation-cap fa-xl text-primary me-2"></i>
-            <span>CAMPUS</span>&nbsp;BOOKBANK
+            <span class="fw-bold">CAMPUS BOOKBANK</span>
         </a>
 
-        <a href="index.html" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+        <a href="index.html"
+           class="btn btn-outline-primary btn-sm rounded-pill px-3">
+
             <i class="fa-solid fa-arrow-left me-1"></i>
             Back to Home
+
         </a>
 
     </div>
 </nav>
 
-<!-- Auth Wrapper -->
-<div class="auth-wrapper">
+<!-- AUTH WRAPPER -->
+<div class="auth-wrapper py-5">
 
-    <div class="auth-card">
+    <div class="container">
 
-        <!-- Header -->
-        <div class="auth-header">
-            <h3 class="fw-bold mb-1">Access Gateway</h3>
-            <p class="mb-0 opacity-75">
-                Connect to your personal Book Bank records
-            </p>
-        </div>
+        <div class="row justify-content-center">
 
-        <!-- Tabs -->
-        <ul class="nav nav-pills nav-fill bg-light p-2" role="tablist">
+            <div class="col-lg-6">
 
-            <li class="nav-item">
-                <button class="nav-link active py-2 rounded-pill"
-                        data-bs-toggle="tab"
-                        data-bs-target="#student-pane">
-                    <i class="fa-solid fa-user-graduate me-1"></i>
-                    Student
-                </button>
-            </li>
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
 
-            <li class="nav-item">
-                <button class="nav-link py-2 rounded-pill"
-                        data-bs-toggle="tab"
-                        data-bs-target="#admin-pane">
-                    <i class="fa-solid fa-user-shield me-1"></i>
-                    Admin
-                </button>
-            </li>
+                    <!-- HEADER -->
+                    <div class="bg-primary text-white text-center p-4">
 
-        </ul>
+                        <h3 class="fw-bold mb-1">
+                            Access Gateway
+                        </h3>
 
-        <div class="tab-content auth-body">
+                        <p class="mb-0 opacity-75">
+                            Connect to your Book Bank account
+                        </p>
 
-            <!-- ================= STUDENT ================= -->
-            <div class="tab-pane fade show active" id="student-pane">
-
-                <!-- LOGIN BOX -->
-                <div id="student-login-box">
-
-                    <h5 class="fw-bold text-primary mb-3">
-                        Student Login
-                    </h5>
-
-                    <form id="studentLoginForm">
-
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-
-                            <input
-                                type="email"
-                                class="form-control rounded-3"
-                                id="stuLoginEmail"
-                                required
-                            />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-
-                            <input
-                                type="password"
-                                class="form-control rounded-3"
-                                id="stuLoginPassword"
-                                required
-                            />
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-primary w-100 rounded-3">
-
-                            <i class="fa-solid fa-right-to-bracket me-2"></i>
-                            Login
-
-                        </button>
-
-                    </form>
-
-                    <p class="text-center mt-3">
-                        Don't have account?
-
-                        <a href="#"
-                           onclick="toggleStuForms(true)">
-                            Signup
-                        </a>
-                    </p>
-
-                </div>
-
-                <!-- SIGNUP BOX -->
-                <div id="student-signup-box" class="d-none">
-
-                    <h5 class="fw-bold text-primary mb-3">
-                        Student Signup
-                    </h5>
-
-                    <form id="studentSignupForm">
-
-                        <div class="mb-3">
-                            <label class="form-label">Full Name</label>
-
-                            <input
-                                type="text"
-                                class="form-control rounded-3"
-                                id="stuRegName"
-                                required
-                            />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-
-                            <input
-                                type="email"
-                                class="form-control rounded-3"
-                                id="stuRegEmail"
-                                required
-                            />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-
-                            <input
-                                type="password"
-                                class="form-control rounded-3"
-                                id="stuRegPassword"
-                                required
-                            />
-                        </div>
-
-                        <button type="submit"
-                                class="btn btn-success w-100 rounded-3">
-
-                            <i class="fa-solid fa-user-plus me-2"></i>
-                            Create Account
-
-                        </button>
-
-                    </form>
-
-                    <p class="text-center mt-3">
-                        Already have account?
-
-                        <a href="#"
-                           onclick="toggleStuForms(false)">
-                            Login
-                        </a>
-                    </p>
-
-                </div>
-
-            </div>
-
-            <!-- ================= ADMIN ================= -->
-            <div class="tab-pane fade" id="admin-pane">
-
-                <h5 class="fw-bold text-primary mb-3">
-                    Admin Login
-                </h5>
-
-                <form id="adminLoginForm">
-
-                    <div class="mb-3">
-                        <label class="form-label">
-                            Admin Email
-                        </label>
-
-                        <input
-                            type="email"
-                            class="form-control rounded-3"
-                            id="adminEmail"
-                            required
-                        />
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">
-                            Password
-                        </label>
+                    <div class="card-body p-4">
 
-                        <input
-                            type="password"
-                            class="form-control rounded-3"
-                            id="adminPassword"
-                            required
-                        />
+                        <!-- TABS -->
+                        <ul class="nav nav-pills nav-fill bg-light p-2 rounded-3 mb-4">
+
+                            <li class="nav-item">
+                                <button
+                                    class="nav-link active rounded-pill"
+                                    id="student-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#student-pane">
+
+                                    <i class="fa-solid fa-user-graduate me-1"></i>
+                                    Student
+
+                                </button>
+                            </li>
+
+                            <li class="nav-item">
+                                <button
+                                    class="nav-link rounded-pill"
+                                    id="admin-tab"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#admin-pane">
+
+                                    <i class="fa-solid fa-user-shield me-1"></i>
+                                    Admin
+
+                                </button>
+                            </li>
+
+                        </ul>
+
+                        <!-- TAB CONTENT -->
+                        <div class="tab-content">
+
+                            <!-- ================= STUDENT ================= -->
+                            <div class="tab-pane fade show active"
+                                 id="student-pane">
+
+                                <!-- LOGIN -->
+                                <div id="student-login-box">
+
+                                    <h5 class="fw-bold text-primary mb-3">
+                                        Student Login
+                                    </h5>
+
+                                    <form id="studentLoginForm">
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Email
+                                            </label>
+
+                                            <input
+                                                type="email"
+                                                class="form-control rounded-3"
+                                                id="stuLoginEmail"
+                                                placeholder="student@gmail.com"
+                                                required
+                                            />
+
+                                        </div>
+
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Password
+                                            </label>
+
+                                            <input
+                                                type="password"
+                                                class="form-control rounded-3"
+                                                id="stuLoginPassword"
+                                                placeholder="********"
+                                                required
+                                            />
+
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary w-100 rounded-3 py-2">
+
+                                            <i class="fa-solid fa-right-to-bracket me-2"></i>
+                                            Login
+
+                                        </button>
+
+                                    </form>
+
+                                    <p class="text-center mt-3">
+
+                                        Don't have account?
+
+                                        <a href="#"
+                                           onclick="toggleStuForms(true)">
+                                            Signup
+                                        </a>
+
+                                    </p>
+
+                                </div>
+
+                                <!-- SIGNUP -->
+                                <div id="student-signup-box"
+                                     class="d-none">
+
+                                    <h5 class="fw-bold text-success mb-3">
+                                        Student Signup
+                                    </h5>
+
+                                    <form id="studentSignupForm">
+
+                                        <!-- FULL NAME -->
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Full Name
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                class="form-control rounded-3"
+                                                id="stuRegName"
+                                                placeholder="Enter Full Name"
+                                                required
+                                            />
+
+                                        </div>
+
+                                        <!-- STUDENT ID -->
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Student ID
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                class="form-control rounded-3"
+                                                id="stuRegId"
+                                                placeholder="e.g STU2026"
+                                                required
+                                            />
+
+                                        </div>
+
+                                        <!-- EMAIL -->
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Email
+                                            </label>
+
+                                            <input
+                                                type="email"
+                                                class="form-control rounded-3"
+                                                id="stuRegEmail"
+                                                placeholder="student@gmail.com"
+                                                required
+                                            />
+
+                                        </div>
+
+                                        <!-- DEPARTMENT -->
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Department
+                                            </label>
+
+                                            <select
+                                                class="form-select rounded-3"
+                                                id="stuRegDept"
+                                                required>
+
+                                                <option value="">
+                                                    Select Department
+                                                </option>
+
+                                                <option>
+                                                    Computer Science
+                                                </option>
+
+                                                <option>
+                                                    Mechanical Engineering
+                                                </option>
+
+                                                <option>
+                                                    Electrical Engineering
+                                                </option>
+
+                                                <option>
+                                                    Civil Engineering
+                                                </option>
+
+                                                <option>
+                                                    BCA
+                                                </option>
+
+                                                <option>
+                                                    BBA
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        <!-- YEAR -->
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Year
+                                            </label>
+
+                                            <select
+                                                class="form-select rounded-3"
+                                                id="stuRegYear"
+                                                required>
+
+                                                <option value="">
+                                                    Select Year
+                                                </option>
+
+                                                <option>
+                                                    1st Year
+                                                </option>
+
+                                                <option>
+                                                    2nd Year
+                                                </option>
+
+                                                <option>
+                                                    3rd Year
+                                                </option>
+
+                                                <option>
+                                                    4th Year
+                                                </option>
+
+                                            </select>
+
+                                        </div>
+
+                                        <!-- PASSWORD -->
+                                        <div class="mb-3">
+
+                                            <label class="form-label">
+                                                Password
+                                            </label>
+
+                                            <input
+                                                type="password"
+                                                class="form-control rounded-3"
+                                                id="stuRegPassword"
+                                                placeholder="Minimum 6 Characters"
+                                                required
+                                            />
+
+                                        </div>
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success w-100 rounded-3 py-2">
+
+                                            <i class="fa-solid fa-user-plus me-2"></i>
+                                            Create Account
+
+                                        </button>
+
+                                    </form>
+
+                                    <p class="text-center mt-3">
+
+                                        Already have account?
+
+                                        <a href="#"
+                                           onclick="toggleStuForms(false)">
+                                            Login
+                                        </a>
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <!-- ================= ADMIN ================= -->
+                            <div class="tab-pane fade"
+                                 id="admin-pane">
+
+                                <h5 class="fw-bold text-danger mb-3">
+                                    Admin Login
+                                </h5>
+
+                                <form id="adminLoginForm">
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+                                            Admin Email
+                                        </label>
+
+                                        <input
+                                            type="email"
+                                            class="form-control rounded-3"
+                                            id="adminEmail"
+                                            placeholder="admin@bookbank.com"
+                                            required
+                                        />
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label">
+                                            Password
+                                        </label>
+
+                                        <input
+                                            type="password"
+                                            class="form-control rounded-3"
+                                            id="adminPassword"
+                                            placeholder="********"
+                                            required
+                                        />
+
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger w-100 rounded-3 py-2">
+
+                                        <i class="fa-solid fa-lock-open me-2"></i>
+                                        Admin Login
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <button type="submit"
-                            class="btn btn-danger w-100 rounded-3">
-
-                        <i class="fa-solid fa-lock-open me-2"></i>
-                        Admin Login
-
-                    </button>
-
-                </form>
+                </div>
 
             </div>
 
@@ -245,10 +419,19 @@
 
 </div>
 
-<!-- Bootstrap JS -->
+<!-- BACKUP IMPORT -->
+<input
+    type="file"
+    id="backupFileInput"
+    accept=".json"
+    style="display:none"
+    onchange="importBackup(event)"
+/>
+
+<!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Firebase Auth Script -->
+<!-- FIREBASE -->
 <script type="module">
 
 import { auth } from "./firebase-config.js";
@@ -263,8 +446,11 @@ from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 // TOGGLE FORMS
 window.toggleStuForms = function(showSignup) {
 
-    const loginBox = document.getElementById("student-login-box");
-    const signupBox = document.getElementById("student-signup-box");
+    const loginBox =
+        document.getElementById("student-login-box");
+
+    const signupBox =
+        document.getElementById("student-signup-box");
 
     if (showSignup) {
 
@@ -281,17 +467,17 @@ window.toggleStuForms = function(showSignup) {
 };
 
 
-// STUDENT LOGIN
-document.getElementById("studentLoginForm")
-.addEventListener("submit", async (e) => {
+// ================= STUDENT LOGIN =================
+document.getElementById('studentLoginForm')
+.addEventListener('submit', async (e) => {
 
     e.preventDefault();
 
     const email =
-        document.getElementById("stuLoginEmail").value;
+        document.getElementById('stuLoginEmail').value.trim();
 
     const password =
-        document.getElementById("stuLoginPassword").value;
+        document.getElementById('stuLoginPassword').value.trim();
 
     try {
 
@@ -303,8 +489,12 @@ document.getElementById("studentLoginForm")
 
         alert("Student Login Successful");
 
-        window.location.href =
-            "dashboard-student.html";
+        setTimeout(() => {
+
+            window.location.href =
+                "dashboard-student.html";
+
+        }, 1000);
 
     } catch (error) {
 
@@ -316,29 +506,62 @@ document.getElementById("studentLoginForm")
 });
 
 
-// STUDENT SIGNUP
-document.getElementById("studentSignupForm")
-.addEventListener("submit", async (e) => {
+// ================= STUDENT SIGNUP =================
+document.getElementById('studentSignupForm')
+.addEventListener('submit', async (e) => {
 
     e.preventDefault();
 
-    const email =
-        document.getElementById("stuRegEmail").value;
+    const studentData = {
+
+        id:
+        document.getElementById('stuRegId').value.trim(),
+
+        name:
+        document.getElementById('stuRegName').value.trim(),
+
+        email:
+        document.getElementById('stuRegEmail').value.trim(),
+
+        dept:
+        document.getElementById('stuRegDept').value,
+
+        year:
+        document.getElementById('stuRegYear').value
+
+    };
 
     const password =
-        document.getElementById("stuRegPassword").value;
+        document.getElementById('stuRegPassword').value;
+
+    if (password.length < 6) {
+
+        alert("Password must be at least 6 characters");
+        return;
+
+    }
 
     try {
 
         await createUserWithEmailAndPassword(
             auth,
-            email,
+            studentData.email,
             password
         );
 
-        alert("Account Created Successfully");
+        // SAVE EXTRA DATA
+        localStorage.setItem(
+            "studentData",
+            JSON.stringify(studentData)
+        );
+
+        alert("Registration Successful");
 
         toggleStuForms(false);
+
+        document.getElementById(
+            'stuLoginEmail'
+        ).value = studentData.email;
 
     } catch (error) {
 
@@ -350,17 +573,17 @@ document.getElementById("studentSignupForm")
 });
 
 
-// ADMIN LOGIN
-document.getElementById("adminLoginForm")
-.addEventListener("submit", async (e) => {
+// ================= ADMIN LOGIN =================
+document.getElementById('adminLoginForm')
+.addEventListener('submit', async (e) => {
 
     e.preventDefault();
 
     const email =
-        document.getElementById("adminEmail").value;
+        document.getElementById('adminEmail').value.trim();
 
     const password =
-        document.getElementById("adminPassword").value;
+        document.getElementById('adminPassword').value.trim();
 
     try {
 
@@ -370,17 +593,21 @@ document.getElementById("adminLoginForm")
             password
         );
 
-        // ADMIN EMAIL CHECK
+        // ADMIN CHECK
         if (email === "admin@bookbank.com") {
 
-            alert("Admin Login Successful");
+            alert("Welcome Admin");
 
-            window.location.href =
-                "dashboard-admin.html";
+            setTimeout(() => {
+
+                window.location.href =
+                    "dashboard-admin.html";
+
+            }, 1000);
 
         } else {
 
-            alert("You are not admin");
+            alert("Access Denied");
 
         }
 
@@ -392,6 +619,43 @@ document.getElementById("adminLoginForm")
     }
 
 });
+
+
+// ================= BACKUP IMPORT =================
+window.importBackup = function(event) {
+
+    const input = event.target;
+
+    const reader = new FileReader();
+
+    reader.onload = function() {
+
+        try {
+
+            const data = JSON.parse(reader.result);
+
+            localStorage.setItem(
+                "studentData",
+                JSON.stringify(data)
+            );
+
+            alert("Backup Restored Successfully");
+
+        } catch (error) {
+
+            alert("Invalid Backup File");
+
+        }
+
+    };
+
+    if (input.files[0]) {
+
+        reader.readAsText(input.files[0]);
+
+    }
+
+};
 
 </script>
 
