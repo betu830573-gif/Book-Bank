@@ -275,8 +275,7 @@ document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
             const params = new URLSearchParams(window.location.search);
             const tab = params.get('tab');
             if (tab === 'admin') {
-                const trigger = document.getElementById('admin-tab');
-                bootstrap.Tab.getOrCreateInstance(trigger).show();
+                
             }
         });
     </script>
