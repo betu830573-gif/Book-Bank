@@ -431,232 +431,102 @@
 <!-- Bootstrap -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- FIREBASE -->
-<script type="module">
+<!-- Firebase SDK (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<!-- Core DB JS -->
+<script src="assets/js/db.js"></script>
 
-import { auth } from "./firebase-config.js";
-
-import {
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword
-}
-from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-
-
+<script>
 // TOGGLE FORMS
 window.toggleStuForms = function(showSignup) {
-
-    const loginBox =
-        document.getElementById("student-login-box");
-
-    const signupBox =
-        document.getElementById("student-signup-box");
-
+    const loginBox = document.getElementById("student-login-box");
+    const signupBox = document.getElementById("student-signup-box");
     if (showSignup) {
-
         loginBox.classList.add("d-none");
         signupBox.classList.remove("d-none");
-
     } else {
-
         loginBox.classList.remove("d-none");
         signupBox.classList.add("d-none");
-
     }
-
 };
 
-
 // ================= STUDENT LOGIN =================
-document.getElementById('studentLoginForm')
-.addEventListener('submit', async (e) => {
-
+document.getElementById('studentLoginForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    const email = document.getElementById('stuLoginEmail').value.trim();
+    const password = document.getElementById('stuLoginPassword').value.trim();
 
-    const email =
-        document.getElementById('stuLoginEmail').value.trim();
-
-    const password =
-        document.getElementById('stuLoginPassword').value.trim();
-
-    try {
-
-        await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
-
+    const res = window.db.loginStudent(email, password);
+    if (res.success) {
         alert("Student Login Successful");
-
         setTimeout(() => {
-
-            window.location.href =
-                "dashboard-student.html";
-
-        }, 1000);
-
-    } catch (error) {
-
-        alert(error.message);
-        console.log(error);
-
+            window.location.href = "dashboard-student.html";
+        }, 500);
+    } else {
+        alert(res.message);
     }
-
 });
-
 
 // ================= STUDENT SIGNUP =================
-document.getElementById('studentSignupForm')
-.addEventListener('submit', async (e) => {
-
+document.getElementById('studentSignupForm').addEventListener('submit', (e) => {
     e.preventDefault();
-
-    const studentData = {
-
-        id:
-        document.getElementById('stuRegId').value.trim(),
-
-        name:
-        document.getElementById('stuRegName').value.trim(),
-
-        email:
-        document.getElementById('stuRegEmail').value.trim(),
-
-        dept:
-        document.getElementById('stuRegDept').value,
-
-        year:
-        document.getElementById('stuRegYear').value
-
-    };
-
-    const password =
-        document.getElementById('stuRegPassword').value;
+    const id = document.getElementById('stuRegId').value.trim();
+    const name = document.getElementById('stuRegName').value.trim();
+    const email = document.getElementById('stuRegEmail').value.trim();
+    const dept = document.getElementById('stuRegDept').value;
+    const password = document.getElementById('stuRegPassword').value;
 
     if (password.length < 6) {
-
         alert("Password must be at least 6 characters");
         return;
-
     }
 
-    try {
-
-        await createUserWithEmailAndPassword(
-            auth,
-            studentData.email,
-            password
-        );
-
-        // SAVE EXTRA DATA
-        localStorage.setItem(
-            "studentData",
-            JSON.stringify(studentData)
-        );
-
+    const res = window.db.signupStudent(id, name, email, password, dept);
+    if (res.success) {
         alert("Registration Successful");
-
         toggleStuForms(false);
-
-        document.getElementById(
-            'stuLoginEmail'
-        ).value = studentData.email;
-
-    } catch (error) {
-
-        alert(error.message);
-        console.log(error);
-
+        document.getElementById('stuLoginEmail').value = email;
+    } else {
+        alert(res.message);
     }
-
 });
-
 
 // ================= ADMIN LOGIN =================
-document.getElementById('adminLoginForm')
-.addEventListener('submit', async (e) => {
-
+document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
 
-    const email =
-        document.getElementById('adminEmail').value.trim();
-
-    const password =
-        document.getElementById('adminPassword').value.trim();
-
-    try {
-
-        await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
-
-        // ADMIN CHECK
-        if (email === "admin@bookbank.com") {
-
-            alert("Welcome Admin");
-
-            setTimeout(() => {
-
-                window.location.href =
-                    "dashboard-admin.html";
-
-            }, 1000);
-
-        } else {
-
-            alert("Access Denied");
-
-        }
-
-    } catch (error) {
-
-        alert(error.message);
-        console.log(error);
-
+    const res = window.db.loginAdmin(email, password);
+    if (res.success) {
+        alert("Welcome Admin");
+        setTimeout(() => {
+            window.location.href = "dashboard-admin.html";
+        }, 500);
+    } else {
+        alert(res.message);
     }
-
 });
-
 
 // ================= BACKUP IMPORT =================
 window.importBackup = function(event) {
-
     const input = event.target;
-
     const reader = new FileReader();
-
     reader.onload = function() {
-
-        try {
-
-            const data = JSON.parse(reader.result);
-
-            localStorage.setItem(
-                "studentData",
-                JSON.stringify(data)
-            );
-
+        const text = reader.result;
+        const res = window.db.importStudentData(text);
+        if (res.success) {
             alert("Backup Restored Successfully");
-
-        } catch (error) {
-
-            alert("Invalid Backup File");
-
+        } else {
+            alert(res.message);
         }
-
     };
-
     if (input.files[0]) {
-
         reader.readAsText(input.files[0]);
-
     }
-
 };
-
 </script>
 
 </body>
