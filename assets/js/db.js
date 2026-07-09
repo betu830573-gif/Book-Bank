@@ -107,29 +107,33 @@ class BookBankDB {
         }
     }
 
-    async syncFromCloud() {
+    syncFromCloud() {
         if (!this.firebaseEnabled) return;
+
         try {
-            // 1. Fetch Students
-            const studentsSnap = await this.firestore.collection('students').get();
-            const students = [];
-            studentsSnap.forEach(doc => students.push(doc.data()));
-            if (students.length > 0) this.saveStudents(students);
+            // 1. Listen Students
+            this.firestore.collection('students').onSnapshot(snap => {
+                const students = [];
+                snap.forEach(doc => students.push(doc.data()));
+                if (students.length > 0) this.saveStudents(students);
+                window.dispatchEvent(new CustomEvent('dbSyncComplete'));
+            });
 
-            // 2. Fetch Books
-            const booksSnap = await this.firestore.collection('books').get();
-            const books = [];
-            booksSnap.forEach(doc => books.push(doc.data()));
-            if (books.length > 0) this.saveBooks(books);
+            // 2. Listen Books
+            this.firestore.collection('books').onSnapshot(snap => {
+                const books = [];
+                snap.forEach(doc => books.push(doc.data()));
+                if (books.length > 0) this.saveBooks(books);
+                window.dispatchEvent(new CustomEvent('dbSyncComplete'));
+            });
 
-            // 3. Fetch Circulation
-            const circsSnap = await this.firestore.collection('circulation').get();
-            const circs = [];
-            circsSnap.forEach(doc => circs.push(doc.data()));
-            if (circs.length > 0) this.saveCirculation(circs);
-            
-            // Notify UI to refresh
-            window.dispatchEvent(new CustomEvent('dbSyncComplete'));
+            // 3. Listen Circulation
+            this.firestore.collection('circulation').onSnapshot(snap => {
+                const circs = [];
+                snap.forEach(doc => circs.push(doc.data()));
+                if (circs.length > 0) this.saveCirculation(circs);
+                window.dispatchEvent(new CustomEvent('dbSyncComplete'));
+            });
         } catch (e) {
             console.warn("Failed to sync from Firebase:", e);
         }
